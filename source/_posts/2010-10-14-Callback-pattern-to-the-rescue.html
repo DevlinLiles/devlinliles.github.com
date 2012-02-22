@@ -1,0 +1,30 @@
+---
+layout: post
+title: Callback pattern to the rescue
+date: 2010-10-14
+---
+<p>So if you have ever gotten stuck with an interface that has callbacks you don&rsquo;t like / don&rsquo;t want where you are implementing. To save the day is callback pattern.</p>
+<p>Imagine the following scenario. The example is logins.</p>
+<p>If the user is logged in already just use those credentials;</p>
+<p>If the user has a token from another system use those credentials;</p>
+<p>If the user is domain authenticated use those credentials;</p>
+<p>otherwise ask the user for login their credentials;</p>
+<p>This chain can be achieved by composing the handlers so that when it hits the deepest level needed it succeeds and returns.</p>
+<p>&nbsp;</p>
+<p>First you define two very straight forward interfaces.</p>
+<p>namespace Core.Interfaces   <br />{    <br />&nbsp;&nbsp;&nbsp; public interface ICallbackHandler    <br />&nbsp;&nbsp;&nbsp; {    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ICallBack[] Handle(params ICallBack[] callBacks);    <br />&nbsp;&nbsp;&nbsp; }    <br />}</p>
+<p>&nbsp;</p>
+<p>namespace Core.Interfaces   <br />{    <br />&nbsp;&nbsp;&nbsp; public interface ICallBack    <br />&nbsp;&nbsp;&nbsp; {    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bool Handled { get; set; }    <br />&nbsp;&nbsp;&nbsp; }    <br />}</p>
+<p>Then you define the callback that you will need. This is a purely data class. No behavior.</p>
+<p>using System.Windows.Forms;   <br />using Core.Interfaces;</p>
+<p>namespace Infrastructure.CallBacks   <br />{    <br />&nbsp;&nbsp;&nbsp; public class WarningCallBack : ICallBack    <br />&nbsp;&nbsp;&nbsp; {    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public readonly string WarningDescription;</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public WarningCallBack(string warningDesc)   <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; WarningDescription = warningDesc;    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public bool Handled { get; set;}   <br />&nbsp;&nbsp;&nbsp; }    <br />}</p>
+<p>The behavior is going to be brokered to the implementation specific to the client application by the handler.</p>
+<p>public class Handler : ICallbackHandler   <br />&nbsp;&nbsp;&nbsp; {    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public ICallBack[] Handle(params ICallBack[] callBacks)    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; List&lt;ICallBack&gt; unhandledCallBacks = new List&lt;ICallBack&gt;();    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; foreach (ICallBack callBack in callBacks)    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; callBack.Handled = Handle((WarningCallBack)callBack);    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(!callBack.Handled)</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {   <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; unhandledCallBacks.Add(callBack);    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return unhandledCallBacks.ToArray();   <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; private bool Handle(WarningCallBack warningCallBack)   <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MessageBox.Show(warningCallBack.WarningDescription, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return true;    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;</p>
+<p>By returning unhandled callbacks you can compose these into a cache stack, or a handle stack.</p>
+<p>This saved me a lot of time and ugliness in my code this morning. Thanks to David O&rsquo;Hara and Craig Neuwirt</p>

@@ -1,0 +1,93 @@
+---
+layout: post
+title: Repository and Interface Re-use between Databases
+date: 2010-08-16
+---
+<p>When using Entity Framework you run into the problem of having either one repository object for each database or having to not use an Inversion of Control due to having to new the Entities Context each time. I have found that this hit on the architecture side is not required.</p>
+<p>This is a follow up to the POCO and Context separation post <a href="http://www.devlinliles.com/post/Separating-POCO-and-Context-in-EF-40.aspx">here</a>. It uses that separation to avoid circular references.</p>
+<p>Lets start with our Generic Repository and Interface.</p>
+<pre class="csharpcode"><span class="kwrd">public</span> <span class="kwrd">class</span> EntityFrameworkRepository : IRepository
+    {
+        <span class="kwrd">private</span> ObjectContext _entities;
+
+        <span class="kwrd">public</span> EntityFrameworkRepository(ObjectContext context)
+        {
+            _entities = context;
+        }
+
+        <span class="kwrd">public</span> IQueryable&lt;T&gt; FindAll&lt;T&gt;() <span class="kwrd">where</span> T : <span class="kwrd">class</span>
+        {
+            <span class="kwrd">return</span> _entities.CreateObjectSet&lt;T&gt;();
+        }
+
+        <span class="kwrd">public</span> IQueryable&lt;T&gt; Find&lt;T&gt;(Expression&lt;Func&lt;T, <span class="kwrd">bool</span>&gt;&gt; <span class="kwrd">where</span>) <span class="kwrd">where</span> T : <span class="kwrd">class</span>
+        {
+            <span class="kwrd">return</span> _entities.CreateObjectSet&lt;T&gt;().Where(<span class="kwrd">where</span>);
+        }
+
+        <span class="kwrd">public</span> T Single&lt;T&gt;(Expression&lt;Func&lt;T, <span class="kwrd">bool</span>&gt;&gt; <span class="kwrd">where</span>) <span class="kwrd">where</span> T : <span class="kwrd">class</span>
+        {
+            <span class="kwrd">return</span> _entities.CreateObjectSet&lt;T&gt;().Where(<span class="kwrd">where</span>).Single();
+        }
+
+        <span class="kwrd">public</span> T SingleOrDefault&lt;T&gt;(Expression&lt;Func&lt;T, <span class="kwrd">bool</span>&gt;&gt; <span class="kwrd">where</span>) <span class="kwrd">where</span> T : <span class="kwrd">class</span>
+        {
+            <span class="kwrd">return</span> _entities.CreateObjectSet&lt;T&gt;().Where(<span class="kwrd">where</span>).SingleOrDefault();
+        }
+
+        <span class="kwrd">public</span> T First&lt;T&gt;(Expression&lt;Func&lt;T, <span class="kwrd">bool</span>&gt;&gt; <span class="kwrd">where</span>) <span class="kwrd">where</span> T : <span class="kwrd">class</span>
+        {
+            <span class="kwrd">return</span> _entities.CreateObjectSet&lt;T&gt;().Where(<span class="kwrd">where</span>).First();
+        }
+
+        <span class="kwrd">public</span> T FirstOrDefault&lt;T&gt;(Expression&lt;Func&lt;T, <span class="kwrd">bool</span>&gt;&gt; <span class="kwrd">where</span>) <span class="kwrd">where</span> T : <span class="kwrd">class</span>
+        {
+            <span class="kwrd">return</span> _entities.CreateObjectSet&lt;T&gt;().Where(<span class="kwrd">where</span>).FirstOrDefault();
+        }
+
+        <span class="kwrd">public</span> T Add&lt;T&gt;(T entity) <span class="kwrd">where</span> T : <span class="kwrd">class</span>
+        {
+            _entities.CreateObjectSet&lt;T&gt;().AddObject(entity);
+            _entities.SaveChanges();
+            <span class="kwrd">return</span> entity;
+        }
+
+        <span class="kwrd">public</span> <span class="kwrd">void</span> Delete&lt;T&gt;(T entity) <span class="kwrd">where</span> T : <span class="kwrd">class</span>
+        {
+            _entities.DeleteObject(entity);
+            _entities.SaveChanges();
+        }
+
+        <span class="kwrd">public</span> T Attach&lt;T&gt;(T entity) <span class="kwrd">where</span> T : <span class="kwrd">class</span>
+        {
+            _entities.AttachTo(entity.GetType().ToString(),entity);
+            _entities.SaveChanges();
+            <span class="kwrd">return</span> entity;
+        }
+
+        <span class="kwrd">public</span> <span class="kwrd">int</span> SaveChanges()
+        {
+            <span class="kwrd">return</span> _entities.SaveChanges();
+        }
+    }</pre>
+<pre class="csharpcode"><span class="kwrd">public</span> <span class="kwrd">interface</span> IRepository
+    {
+        IQueryable&lt;T&gt; FindAll&lt;T&gt;() <span class="kwrd">where</span> T : <span class="kwrd">class</span>;
+        IQueryable&lt;T&gt; Find&lt;T&gt;(Expression&lt;Func&lt;T,<span class="kwrd">bool</span>&gt;&gt; <span class="kwrd">where</span>) <span class="kwrd">where</span> T : <span class="kwrd">class</span>;
+        T Single&lt;T&gt;(Expression&lt;Func&lt;T, <span class="kwrd">bool</span>&gt;&gt; <span class="kwrd">where</span>) <span class="kwrd">where</span> T : <span class="kwrd">class</span>;
+        T SingleOrDefault&lt;T&gt;(Expression&lt;Func&lt;T, <span class="kwrd">bool</span>&gt;&gt; <span class="kwrd">where</span>) <span class="kwrd">where</span> T : <span class="kwrd">class</span>;
+        T First&lt;T&gt;(Expression&lt;Func&lt;T, <span class="kwrd">bool</span>&gt;&gt; <span class="kwrd">where</span>) <span class="kwrd">where</span> T : <span class="kwrd">class</span>;
+        T FirstOrDefault&lt;T&gt;(Expression&lt;Func&lt;T, <span class="kwrd">bool</span>&gt;&gt; <span class="kwrd">where</span>) <span class="kwrd">where</span> T : <span class="kwrd">class</span>;
+        T Add&lt;T&gt;(T entity) <span class="kwrd">where</span> T : <span class="kwrd">class</span>;
+        <span class="kwrd">void</span> Delete&lt;T&gt;(T entity) <span class="kwrd">where</span> T : <span class="kwrd">class</span>;
+        T Attach&lt;T&gt;(T entity) <span class="kwrd">where</span> T : <span class="kwrd">class</span>;
+        <span class="kwrd">int</span> SaveChanges();
+    }</pre>
+<p><!-- .csharpcode, .csharpcode pre { 	font-size: small; 	color: black; 	font-family: consolas, "Courier New", courier, monospace; 	background-color: #ffffff; 	/*white-space: pre;*/ } .csharpcode pre { margin: 0em; } .csharpcode .rem { color: #008000; } .csharpcode .kwrd { color: #0000ff; } .csharpcode .str { color: #006080; } .csharpcode .op { color: #0000c0; } .csharpcode .preproc { color: #cc6633; } .csharpcode .asp { background-color: #ffff00; } .csharpcode .html { color: #800000; } .csharpcode .attr { color: #ff0000; } .csharpcode .alt  { 	background-color: #f4f4f4; 	width: 100%; 	margin: 0em; } .csharpcode .lnum { color: #606060; } --></p>
+<p>Notice that we pass in the Object Context. This is what enables us to separate the usage from the declaration. I am going to use Structure Map as it is my preferred IoC but most IoCs implement this functionality.</p>
+<p><a href="/images/image_31.png"><img style="border-bottom: 0px; border-left: 0px; display: inline; border-top: 0px; border-right: 0px" title="image" src="/images/image_thumb_31.png" border="0" alt="image" width="600" height="468" /></a></p>
+<p>This is in the configuration code block for Structure Map. Notice that the ObjectContext is created to a named instance of the IRepository. The application services are created with the database that they hit. This allows you two things.</p>
+<p>1. Re-use of the interfaces and repository objects between databases.</p>
+<p>2. Changing the database for a service is now just an IoC Configuration Change.<!-- .csharpcode, .csharpcode pre { 	font-size: small; 	color: black; 	font-family: consolas, "Courier New", courier, monospace; 	background-color: #ffffff; 	/*white-space: pre;*/ } .csharpcode pre { margin: 0em; } .csharpcode .rem { color: #008000; } .csharpcode .kwrd { color: #0000ff; } .csharpcode .str { color: #006080; } .csharpcode .op { color: #0000c0; } .csharpcode .preproc { color: #cc6633; } .csharpcode .asp { background-color: #ffff00; } .csharpcode .html { color: #800000; } .csharpcode .attr { color: #ff0000; } .csharpcode .alt  { 	background-color: #f4f4f4; 	width: 100%; 	margin: 0em; } .csharpcode .lnum { color: #606060; } --></p>
+<p>&nbsp;</p>
+<p>Enjoy.</p>

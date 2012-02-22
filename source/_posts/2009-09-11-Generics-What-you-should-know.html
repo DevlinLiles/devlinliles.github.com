@@ -1,0 +1,66 @@
+---
+layout: post
+title: Generics ? What you should know?
+date: 2009-09-11
+---
+<p>I have had some interesting conversations over the last week or so about generics. It was brought up out of a MCTS study group and then in the internal DNUG that I lead. so let me break it down.</p>
+<p>Without Generics -</p>
+<blockquote>
+<p><span style="background-color: #ffffff;">I have to setup collections of objects manual and for each type that I want to use. To add, sort, filter, or aggregate this collection takes a lot of code and time. Some things like ArrayList return objects which means all that casting or reflection over head to get into the objects I need.</span></p>
+</blockquote>
+<p>With Generics -</p>
+<blockquote>
+<p><span style="background-color: #ffffff;">I have to setup a collection and give it the input types. It handles sorting, filtering, adding, and aggregates through the use of generic Action&lt;T&gt;, Func&lt;T&gt;, or Predicate&lt;T&gt;. I can write sorts and filters and make them generic so that I don?t have to copy/paste change type.</span></p>
+</blockquote>
+<p>Generics are not the end all and be all but they help a great deal when you are trying not to repeat yourself. I have found that when using generics that the compiler actually spits out the methods with the implemented types in them, which means that generics while great are syntactic sugar, and I have a sweet tooth.</p>
+<p>With Linq being based on the use of IEnumerable&lt;T&gt; and the new parallel extensions to .NET 4.0 being able to spread the workload of Action&lt;T&gt; and Task&lt;T&gt; across multiple processors I would tell everyone. Start learning generics. It is easy to use once you wrap your head around it. Like if I wanted to add two numbers of different types I could write this:</p>
+<pre class="csharpcode"><span class="kwrd">public</span> <span class="kwrd">float</span> Add(<span class="kwrd">int</span> one, <span class="kwrd">decimal</span> two)
+{
+       <span class="kwrd">float</span> item = <span class="kwrd">new</span> <span class="kwrd">float</span>();
+       item = <span class="kwrd">float</span>.Parse(one.ToString()) + <span class="kwrd">float</span>.Parse(two.ToString());
+       <span class="kwrd">return</span> item;
+}
+
+<span class="kwrd">public</span> <span class="kwrd">float</span> Add(<span class="kwrd">decimal</span> one, <span class="kwrd">decimal</span> two)
+{
+       <span class="kwrd">float</span> item = <span class="kwrd">new</span> <span class="kwrd">float</span>();
+       item = <span class="kwrd">float</span>.Parse(one.ToString()) + <span class="kwrd">float</span>.Parse(two.ToString());
+       <span class="kwrd">return</span> item;
+}
+
+<span class="kwrd">public</span> <span class="kwrd">float</span> Add(<span class="kwrd">int</span> one, <span class="kwrd">int</span> two)
+{
+       <span class="kwrd">float</span> item = <span class="kwrd">new</span> <span class="kwrd">float</span>();
+       item = <span class="kwrd">float</span>.Parse(one.ToString()) + <span class="kwrd">float</span>.Parse(two.ToString());
+       <span class="kwrd">return</span> item;
+}
+
+<span class="kwrd">public</span> <span class="kwrd">float</span> Add(<span class="kwrd">double</span> one, <span class="kwrd">double</span> two)
+{
+       <span class="kwrd">float</span> item = <span class="kwrd">new</span> <span class="kwrd">float</span>();
+       item = <span class="kwrd">float</span>.Parse(one.ToString()) + <span class="kwrd">float</span>.Parse(two.ToString());
+       <span class="kwrd">return</span> item;
+}
+
+<span class="kwrd">public</span> <span class="kwrd">float</span> Add(<span class="kwrd">int</span> one, <span class="kwrd">double</span> two)
+{
+       <span class="kwrd">float</span> item = <span class="kwrd">new</span> <span class="kwrd">float</span>();
+       item = <span class="kwrd">float</span>.Parse(one.ToString()) + <span class="kwrd">float</span>.Parse(two.ToString());
+       <span class="kwrd">return</span> item;
+}
+
+<span class="kwrd">public</span> <span class="kwrd">float</span> Add(<span class="kwrd">double</span> one, <span class="kwrd">decimal</span> two)
+{
+       <span class="kwrd">float</span> item = <span class="kwrd">new</span> <span class="kwrd">float</span>();
+       item = <span class="kwrd">float</span>.Parse(one.ToString()) + <span class="kwrd">float</span>.Parse(two.ToString());
+       <span class="kwrd">return</span> item;
+}</pre>
+<p><!-- .csharpcode, .csharpcode pre { 	font-size: small; 	color: black; 	font-family: consolas, "Courier New", courier, monospace; 	background-color: #ffffff; 	/*white-space: pre;*/ } .csharpcode pre { margin: 0em; } .csharpcode .rem { color: #008000; } .csharpcode .kwrd { color: #0000ff; } .csharpcode .str { color: #006080; } .csharpcode .op { color: #0000c0; } .csharpcode .preproc { color: #cc6633; } .csharpcode .asp { background-color: #ffff00; } .csharpcode .html { color: #800000; } .csharpcode .attr { color: #ff0000; } .csharpcode .alt  { 	background-color: #f4f4f4; 	width: 100%; 	margin: 0em; } .csharpcode .lnum { color: #606060; } -->or I could write this:</p>
+<pre class="csharpcode"><span class="kwrd">public</span> <span class="kwrd">float</span> Add&lt;T, T2&gt;(T one, T2 two)
+{
+      <span class="kwrd">return</span> <span class="kwrd">float</span>.Parse(one.ToString()) + <span class="kwrd">float</span>.Parse(two.ToString());
+}</pre>
+<p><!-- .csharpcode, .csharpcode pre { 	font-size: small; 	color: black; 	font-family: consolas, "Courier New", courier, monospace; 	background-color: #ffffff; 	/*white-space: pre;*/ } .csharpcode pre { margin: 0em; } .csharpcode .rem { color: #008000; } .csharpcode .kwrd { color: #0000ff; } .csharpcode .str { color: #006080; } .csharpcode .op { color: #0000c0; } .csharpcode .preproc { color: #cc6633; } .csharpcode .asp { background-color: #ffff00; } .csharpcode .html { color: #800000; } .csharpcode .attr { color: #ff0000; } .csharpcode .alt  { 	background-color: #f4f4f4; 	width: 100%; 	margin: 0em; } .csharpcode .lnum { color: #606060; } -->Which would you prefer?</p>
+<p>&nbsp;</p>
+<p>Enjoy, and remember.</p>
+<p>Code Like you have to support it.</p>

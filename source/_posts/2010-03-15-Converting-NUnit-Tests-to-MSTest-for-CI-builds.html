@@ -1,0 +1,6 @@
+---
+layout: post
+title: Converting NUnit Tests to MSTest for CI builds
+date: 2010-03-15
+---
+<p>So I found a problem that the project I am working on had a bunch of nUnit tests that needed converted to MSTest and I really didn’t want to do a find replace on all the keywords so I did the following.</p>  <p>using Microsoft.VisualStudio.TestTools.UnitTesting;   <br />using TestFixture = Microsoft.VisualStudio.TestTools.UnitTesting.TestClassAttribute;    <br />using Test = Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute;    <br />using TearDown = Microsoft.VisualStudio.TestTools.UnitTesting.TestCleanupAttribute;    <br />using SetUp = Microsoft.VisualStudio.TestTools.UnitTesting.TestInitializeAttribute;    <br />using TestFixtureTearDown = Microsoft.VisualStudio.TestTools.UnitTesting.ClassCleanupAttribute;    <br />using TestFixtureSetUp = Microsoft.VisualStudio.TestTools.UnitTesting.ClassInitializeAttribute;    <br />using Explicit = Microsoft.VisualStudio.TestTools.UnitTesting.IgnoreAttribute;</p>  <p></p>  <p>Then you just paste this into the using of your test file, and remove your nUnit references. Bob’s your uncle converted.</p>

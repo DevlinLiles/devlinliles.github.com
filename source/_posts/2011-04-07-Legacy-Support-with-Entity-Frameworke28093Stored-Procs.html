@@ -1,0 +1,27 @@
+---
+layout: post
+title: Legacy Support with Entity Framework–Stored Procs
+date: 2011-04-07
+---
+<p>I have gotten several questions over the last few months over how to leverage Entity Framework with a large number of legacy stored procedures that cannot be re-written whole sale. The answer is slowly convert your data access to Entity framework using function imports, and as time permits move that logic into the query repository so that it can be unit tested and consistent.</p>
+<p>Here is how to do it.</p>
+<p>Make sure that you have added the stored procedures to the model.</p>
+<p><a href="/images/image_38.png"><img style="background-image: none; border-bottom: 0px; border-left: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top: 0px; border-right: 0px; padding-top: 0px" title="image" src="/images/image_thumb_38.png" border="0" alt="image" width="515" height="517" /></a></p>
+<p>Then right click the white background on the canvas&hellip;</p>
+<p><a href="/images/image_39.png"><img style="background-image: none; border-bottom: 0px; border-left: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top: 0px; border-right: 0px; padding-top: 0px" title="image" src="/images/image_thumb_39.png" border="0" alt="image" width="600" height="399" /></a></p>
+<p>This brings up the wizard&hellip;</p>
+<p><a href="/images/image_40.png"><img style="background-image: none; border-bottom: 0px; border-left: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top: 0px; border-right: 0px; padding-top: 0px" title="image" src="/images/image_thumb_40.png" border="0" alt="image" width="499" height="684" /></a></p>
+<p>1. Chose a Stored Procedure</p>
+<p>2. Name the Method you will call in code for this.</p>
+<p>3. Click the radio button for the complex type.</p>
+<p>4. Click get column information.</p>
+<p>5. Click Create New Complex Type &ndash; This saves a lot of manual creation.</p>
+<p>6. Name your complex object.</p>
+<p>7. Click Ok.</p>
+<p>After these quick and easy steps you can then use this by calling the method on the entities.</p>
+<p><a href="/images/image_41.png"><img style="background-image: none; border-bottom: 0px; border-left: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top: 0px; border-right: 0px; padding-top: 0px" title="image" src="/images/image_thumb_41.png" border="0" alt="image" width="600" height="44" /></a></p>
+<p>Notice the Type safe parameters &ndash; This will help you avoid run time type mismatch issues throwing SQL Exceptions.</p>
+<p>ObjectResult&lt;BillOfMaterials&gt; billOfMaterials = entities.GetBillOfMaterials()   <br />billOfMaterials.Select(x =&gt; x.StandardCost);</p>
+<p>You can then call against this just like any other collection of objects.</p>
+<p>&nbsp;</p>
+<p>Enjoy</p>

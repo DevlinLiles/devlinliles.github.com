@@ -1,0 +1,11 @@
+---
+layout: post
+title: Using VSS and Visual Studio 2005 on Windows 7 (x64)
+date: 2010-10-08
+---
+<p>So I ran into an issue with trying to connect a windows 7 development environment to VSS. There is a file access issue where you need full control instead of just read and write permissions. There are several posts other places for working around with this.</p>
+<p><a title="http://www.dotnetmonster.com/Uwe/Forum.aspx/vs-sourcesafe/2283/Access-to-file-lumiere-vss-data-rights-dat-denied" href="http://www.dotnetmonster.com/Uwe/Forum.aspx/vs-sourcesafe/2283/Access-to-file-lumiere-vss-data-rights-dat-denied">http://www.dotnetmonster.com/Uwe/Forum.aspx/vs-sourcesafe/2283/Access-to-file-lumiere-vss-data-rights-dat-denied</a></p>
+<p><a title="http://www.csharptalk.com/2010/09/access-to-file-vssdatarightsdat-denied.html" href="http://www.csharptalk.com/2010/09/access-to-file-vssdatarightsdat-denied.html">http://www.csharptalk.com/2010/09/access-to-file-vssdatarightsdat-denied.html</a></p>
+<p>If you are constrained on editing user permission or connecting over a VPN then you can use a much simpler solution. You just need to set the compatibility of Visual Studio 2005 to run as administrator and Windows XP SP3.</p>
+<p><a href="/images/image_32.png"><img style="border-bottom: 0px; border-left: 0px; display: inline; border-top: 0px; border-right: 0px" title="image" src="/images/image_thumb_32.png" border="0" alt="image" width="382" height="486" /></a></p>
+<p>This will keep the Windows 7 access restrictions from being applied to the file access checks. It will use the Windows XP access checks and you will be golden.</p>

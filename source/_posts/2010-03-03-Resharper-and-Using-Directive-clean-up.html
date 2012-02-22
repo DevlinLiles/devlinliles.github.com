@@ -1,0 +1,15 @@
+---
+layout: post
+title: Resharper and Using Directive clean up
+date: 2010-03-03
+---
+<blockquote>
+<p>I have come across something in the project that I am working on that is weird. Resharper marks a using directive as unused because we use it through reflection. When we do a clean up it is removed. So I went hunting and found that you can tell Resharper to never removed certain namespaces. You can also tell it to add certain namespaces by default.</p>
+</blockquote>
+<p><span style="background-color: #f4f5f7;">Open your Resharper Options Menu.</span></p>
+<p><a href="http://blog.devlinliles.com/image.axd?picture=image_7.png"><img style="border-bottom: 0px; border-left: 0px; display: inline; border-top: 0px; border-right: 0px" title="image" src="http://blog.devlinliles.com/image.axd?picture=image_thumb_7.png" border="0" alt="image" width="211" height="356" /></a></p>
+<p>Then go to language ?&gt; Namespace Import</p>
+<p><a href="http://blog.devlinliles.com/image.axd?picture=image_8.png"><img style="border-bottom: 0px; border-left: 0px; display: inline; border-top: 0px; border-right: 0px" title="image" src="http://blog.devlinliles.com/image.axd?picture=image_thumb_8.png" border="0" alt="image" width="507" height="507" /></a></p>
+<p>Just click add on the should not be removed for the ones you don?t want deleted and add on the right for the ones that you want to add by default.</p>
+<p>&nbsp;</p>
+<p>Enjoy.</p>

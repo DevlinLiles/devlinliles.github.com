@@ -1,0 +1,135 @@
+---
+layout: post
+title: C# Functions that might help pt. 1
+date: 2009-09-13
+---
+<p>When talking to a friend of mine we had the idea to do a blog series over C# functions that might help people if they don?t know about them. This will be categorized so you can keep up on it, and it will be once a week on Mondays. First I was going to start with ?continue?. Nest ifs inside a loop cause major performance issues in most applications but there are a few ways to avoid this. The MSDN definition of continue is ?The continue statement passes control to the next iteration of the enclosing iteration statement in which it appears.? . Here is the code snippet that we are going to clean up. ?Caution the following code is not suitable for young viewers or those that are faint of heart.?</p>  <pre class="csharpcode">IEnumerable&lt;ReflectionParameter&gt; test = <span class="kwrd">new</span> List&lt;ReflectionParameter&gt;();
+
+            <span class="kwrd">foreach</span> (var parameter <span class="kwrd">in</span> test)
+            {
+                <span class="kwrd">if</span> (parameter != <span class="kwrd">null</span>)
+                {
+                    parameter.MethodName = <span class="str">&quot;Something&quot;</span>;
+                    <span class="kwrd">if</span> (parameter.children != <span class="kwrd">null</span>)
+                    {
+                        <span class="kwrd">foreach</span> (var child <span class="kwrd">in</span> parameter.children)
+                        {
+                            <span class="kwrd">if</span> (child.MethodName == <span class="kwrd">null</span>)
+                            {
+                                child.MethodName = <span class="str">&quot;Something&quot;</span>;
+                            }
+                        }
+                    }
+                }
+            }</pre>
+
+<p>I know right? We can clean this up by inverting the first if to a continue statement.</p>
+
+<pre class="csharpcode">IEnumerable&lt;ReflectionParameter&gt; test = <span class="kwrd">new</span> List&lt;ReflectionParameter&gt;();
+
+            <span class="kwrd">foreach</span> (var parameter <span class="kwrd">in</span> test)
+            {
+                <span class="kwrd">if</span> (parameter == <span class="kwrd">null</span>) <span class="kwrd">continue</span>;
+                parameter.MethodName = <span class="str">&quot;Something&quot;</span>;
+                    <span class="kwrd">if</span> (parameter.children != <span class="kwrd">null</span>)
+                    {
+                        <span class="kwrd">foreach</span> (var child <span class="kwrd">in</span> parameter.children)
+                        {
+                            <span class="kwrd">if</span> (child.MethodName == <span class="kwrd">null</span>)
+                            {
+                                child.MethodName = <span class="str">&quot;Something&quot;</span>;
+                            }
+                        }
+                     }
+            }</pre>
+
+<pre class="csharpcode">We can still clean this up by inverting the children check to a continue statement.</pre>
+
+<pre class="csharpcode">IEnumerable&lt;ReflectionParameter&gt; test = <span class="kwrd">new</span> List&lt;ReflectionParameter&gt;();
+
+            <span class="kwrd">foreach</span> (var parameter <span class="kwrd">in</span> test)
+            {
+                <span class="kwrd">if</span> (parameter == <span class="kwrd">null</span>) <span class="kwrd">continue</span>;
+                parameter.MethodName = <span class="str">&quot;Something&quot;</span>;
+                <span class="kwrd">if</span> (parameter.children == <span class="kwrd">null</span>) <span class="kwrd">continue</span>;
+                <span class="kwrd">foreach</span> (var child <span class="kwrd">in</span> parameter.children)
+                {
+                    <span class="kwrd">if</span> (child.MethodName == <span class="kwrd">null</span>)
+                    {
+                        child.MethodName = <span class="str">&quot;Something&quot;</span>;
+                    }
+                }
+            }</pre>
+
+<p>We can also do this to the if inside the second for each loop.</p>
+
+<pre class="csharpcode">IEnumerable&lt;ReflectionParameter&gt; test = <span class="kwrd">new</span> List&lt;ReflectionParameter&gt;();
+
+            <span class="kwrd">foreach</span> (var parameter <span class="kwrd">in</span> test)
+            {
+                <span class="kwrd">if</span> (parameter == <span class="kwrd">null</span>) <span class="kwrd">continue</span>;
+                parameter.MethodName = <span class="str">&quot;Something&quot;</span>;
+                <span class="kwrd">if</span> (parameter.children == <span class="kwrd">null</span>) <span class="kwrd">continue</span>;
+                <span class="kwrd">foreach</span> (var child <span class="kwrd">in</span> parameter.children)
+                {
+                    <span class="kwrd">if</span> (child.MethodName != <span class="kwrd">null</span>) <span class="kwrd">continue</span>;
+                    child.MethodName = <span class="str">&quot;Something&quot;</span>;
+                }
+            }</pre>
+<style type="text/css">
+
+
+.csharpcode, .csharpcode pre
+{
+	font-size: small;
+	color: black;
+	font-family: consolas, "Courier New", courier, monospace;
+	background-color: #ffffff;
+	/*white-space: pre;*/
+}
+.csharpcode pre { margin: 0em; }
+.csharpcode .rem { color: #008000; }
+.csharpcode .kwrd { color: #0000ff; }
+.csharpcode .str { color: #006080; }
+.csharpcode .op { color: #0000c0; }
+.csharpcode .preproc { color: #cc6633; }
+.csharpcode .asp { background-color: #ffff00; }
+.csharpcode .html { color: #800000; }
+.csharpcode .attr { color: #ff0000; }
+.csharpcode .alt 
+{
+	background-color: #f4f4f4;
+	width: 100%;
+	margin: 0em;
+}
+.csharpcode .lnum { color: #606060; }</style>
+
+<p>This is a much cleaner section of code but is not great. It still has a nested for each loop. which makes my insides scream, but we will attack that sort of nesting next week. </p>
+
+<p><style type="text/css">
+
+
+.csharpcode, .csharpcode pre
+{
+	font-size: small;
+	color: black;
+	font-family: consolas, "Courier New", courier, monospace;
+	background-color: #ffffff;
+	/*white-space: pre;*/
+}
+.csharpcode pre { margin: 0em; }
+.csharpcode .rem { color: #008000; }
+.csharpcode .kwrd { color: #0000ff; }
+.csharpcode .str { color: #006080; }
+.csharpcode .op { color: #0000c0; }
+.csharpcode .preproc { color: #cc6633; }
+.csharpcode .asp { background-color: #ffff00; }
+.csharpcode .html { color: #800000; }
+.csharpcode .attr { color: #ff0000; }
+.csharpcode .alt 
+{
+	background-color: #f4f4f4;
+	width: 100%;
+	margin: 0em;
+}
+.csharpcode .lnum { color: #606060; }</style></p>

@@ -1,0 +1,17 @@
+---
+layout: post
+title: Entity Framework Cascading deletes avoid the gotchas
+date: 2011-04-21
+---
+<p>If you have ever had to do Cascading deletes with Entity Framework you have realized that it is happiness, but it has a couple of gotchas. The Context that entity framework uses will not fetch all items related from the database just to issue delete statements, it will however issue deletes from anything it knows about. So the solution is to have the delete from the database cascade or bring the items into the context manually.</p>
+<p>Setting it in the EDMX is easy. Just pull up the properties on the association and set the on Delete behavior.</p>
+<p><a href="/images/image_36.png"><img style="background-image: none; border-bottom: 0px; border-left: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top: 0px; border-right: 0px; padding-top: 0px" title="image" src="/images/image_thumb_36.png" border="0" alt="image" width="423" height="346" /></a></p>
+<p>There are a few more step to help avoid the gotchas.</p>
+<p>First if you can specify the Delete rule on the Foreign Keys in the database.</p>
+<p><a href="/images/image_37.png"><img style="background-image: none; border-bottom: 0px; border-left: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top: 0px; border-right: 0px; padding-top: 0px" title="image" src="/images/image_thumb_37.png" border="0" alt="image" width="432" height="345" /></a></p>
+<p>If you cannot do that you can specify an include for the collections that you want to delete.</p>
+<p>var employee = entities.Employees.Include("EmployeeAddresses").FirstOrDefault();   <br />entities.DeleteObject(employee);</p>
+<p>Or slightly cleaner to read but more trips to the database is to load the collections.</p>
+<p>var employee = entities.Employees.FirstOrDefault();   <br />employee.EmployeeAddresses.Load();    <br />entities.DeleteObject(employee);</p>
+<p>&nbsp;</p>
+<p>Hope this helps</p>

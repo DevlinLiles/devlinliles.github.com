@@ -1,0 +1,6 @@
+---
+layout: post
+title: Concurrency and Locking in Entity Framework
+date: 2011-12-29
+---
+<p>So I was talking to a friend this afternoon and the question of how Entity Framework handles locking came up. It is important to know that no pessimistic locking exists in Entity framework. Save Changes uses implementation of DbTransaction <font face="Verdana">for current store provider. It means that default transaction isolation level is set to default value for the database server. In SQL Server it is Read Committed. </font></p>  <p>Make sure you look at how the tables are defined when it comes to lock levels and how the server you are using is configured.</p>  <p>&#160;</p>  <p>Here are the details that I pointed him to.</p>  <p><a title="http://msdn.microsoft.com/en-us/library/ms184286.aspx" href="http://msdn.microsoft.com/en-us/library/ms184286.aspx">http://msdn.microsoft.com/en-us/library/ms184286.aspx</a></p>  <p><a title="http://msdn.microsoft.com/en-us/library/bb738618.aspx" href="http://msdn.microsoft.com/en-us/library/bb738618.aspx">http://msdn.microsoft.com/en-us/library/bb738618.aspx</a></p>  <p>&#160;</p>  <p>Enjoy.</p>

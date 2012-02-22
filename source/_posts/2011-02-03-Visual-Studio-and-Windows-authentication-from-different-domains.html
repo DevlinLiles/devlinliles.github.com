@@ -1,0 +1,14 @@
+---
+layout: post
+title: Visual Studio and Windows authentication from different domains
+date: 2011-02-03
+---
+<p>I am not sure how many people have tried to connect there personal computer or their work computer to a different domain and use TFS with it but it prompts for user credentials every time. This is a bit annoying especially when you have to punch in the domain every time. There is also the trouble of debugging with a windows authenticated website from the wrong domain. These are fairly common problems for consultants, contractors, and work from home guys who want to use their powerhouse rather than the dinky work laptop. Here is the solution.</p>
+<p>&nbsp;</p>
+<p>Create a new short cut and add this to the target</p>
+<p><a href="/images/image_33.png"><img style="background-image: none; border-bottom: 0px; border-left: 0px; margin: ; padding-left: 0px; padding-right: 0px; display: inline; border-top: 0px; border-right: 0px; padding-top: 0px" title="image" src="/images/image_thumb_33.png" border="0" alt="image" width="353" height="288" /></a></p>
+<p>C:\Windows\System32\runas.exe /user:&lt;domain&gt;\&lt;user&gt; /netonly "C:\Program Files (x86)\Microsoft Visual Studio 10.0\Common7\IDE\devenv.exe"</p>
+<p>That is for Visual Studio, You can also do this to hit windows authenticates sql servers from Sql Manager which doesn&rsquo;t allow you to punch in a different windows user.</p>
+<p>C:\Windows\System32\runas.exe /user:&lt;domain&gt;\&lt;user&gt; /netonly "C:\program files (x86)\Microsoft SQL Server\100\Tools\Binn\VSShell\Common7\IDE\Ssms.exe"</p>
+<p>&nbsp;</p>
+<p>These two shortcuts have saved me tons of time in the last several weeks. Feel free to share!</p>
