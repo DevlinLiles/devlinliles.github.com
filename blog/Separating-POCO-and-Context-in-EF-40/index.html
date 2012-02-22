@@ -1,0 +1,297 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Separating POCO and Context in EF 4.0 - The Devlineator</title>
+  <meta name="author" content="Devlin Liles">
+
+  
+  <meta name="description" content="I found that I like the streamlined process of working with Entity Framework. The auto generation of domain class is nice when dealing with Existing &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://devlinliles.com/blog/Separating-POCO-and-Context-in-EF-40">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="The Devlineator" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">The Devlineator</a></h1>
+  
+    <h2>Random thoughts on .NET Development</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:devlinliles.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Separating POCO and Context in EF 4.0</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2010-08-16T00:00:00-05:00" pubdate data-updated="true">Aug 16<span>th</span>, 2010</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>I found that I like the streamlined process of working with Entity Framework. The auto generation of domain class is nice when dealing with Existing databases. I dislike having to put domain classes in Infrastructure or putting data base context in Core.</p>
+<p>Using the POCO Entities T4 templates you can separate these.</p>
+<p>Download <a href="http://visualstudiogallery.msdn.microsoft.com/en-us/23df0450-5677-4926-96cc-173d02752313">here</a></p>
+<p>Add a new Entity Data Model and Generate from the data base.</p>
+<p><a href="/images/image_24.png"><img style="border-bottom: 0px; border-left: 0px; display: inline; border-top: 0px; border-right: 0px" title="image" src="/images/image_thumb_24.png" border="0" alt="image" width="449" height="312" /></a></p>
+<p>Then right click the background of the model and add a generated code item.</p>
+<p><a href="/images/image_25.png"><img style="border-bottom: 0px; border-left: 0px; display: inline; border-top: 0px; border-right: 0px" title="image" src="/images/image_thumb_25.png" border="0" alt="image" width="457" height="238" /></a></p>
+<p>Select the POCO Objects</p>
+<p><a href="/images/image_26.png"><img style="border-bottom: 0px; border-left: 0px; display: inline; border-top: 0px; border-right: 0px" title="image" src="/images/image_thumb_26.png" border="0" alt="image" width="444" height="308" /></a>&nbsp;</p>
+<p>This will create Two .tt files. One is the POCO Classes and one is the Context. We are going to use the onion architecture for this example. We want to move the context to infrastructure so that our model and POCO classes and model are in core.</p>
+<p><a href="/images/image_27.png"><img style="border-bottom: 0px; border-left: 0px; display: inline; border-top: 0px; border-right: 0px" title="image" src="/images/image_thumb_27.png" border="0" alt="image" width="244" height="231" /></a></p>
+<p>and</p>
+<p><a href="/images/image_28.png"><img style="border-bottom: 0px; border-left: 0px; display: inline; border-top: 0px; border-right: 0px" title="image" src="/images/image_thumb_28.png" border="0" alt="image" width="211" height="40" /></a></p>
+<p>To separate the context from the Domain we will need to edit the context template. You do not want to edit the classes generated because this will just get wiped out.</p>
+<p><a href="/images/image_29.png"><img style="border-bottom: 0px; border-left: 0px; display: inline; border-top: 0px; border-right: 0px" title="image" src="/images/image_thumb_29.png" border="0" alt="image" width="532" height="257" /></a></p>
+<p><a href="/images/image_30.png"><img style="border-bottom: 0px; border-left: 0px; display: inline; border-top: 0px; border-right: 0px" title="image" src="/images/image_thumb_30.png" border="0" alt="image" width="535" height="400" /></a></p>
+<p>The edit we have to make is to simply add the namespace of the Domain objects to the using statements, and the path of the EDMX file to the input. I am still hunting a way to keep from hard coding a absolute path to the EDMX but until then this will have to work.</p>
+<p>&nbsp;</p>
+<p>Enjoy.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Devlin Liles</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2010-08-16T00:00:00-05:00" pubdate data-updated="true">Aug 16<span>th</span>, 2010</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://devlinliles.com/blog/Separating-POCO-and-Context-in-EF-40/" data-via="devlinliles" data-counturl="http://devlinliles.com/blog/Separating-POCO-and-Context-in-EF-40/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/Repository-and-Interface-Re-use-between-Databases/" title="Previous Post: Repository and Interface Re-use between Databases">&laquo; Repository and Interface Re-use between Databases</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/Lessons-Learned-A-Developer-Retrospective/" title="Next Post: Lessons Learned- A Developer Retrospective">Lessons Learned- A Developer Retrospective &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/How-to-constrain-mocks-for-use-with-Complex-Types/">How to constrain mocks for use with Complex Types</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/AgileDotNet-is-Coming-Are-you-registered/">AgileDotNet is Coming!!! Are you registered?</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Concurrency-and-Locking-in-Entity-Framework/">Concurrency and Locking in Entity Framework</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Tulsa-Tech-Fest-2011/">Tulsa Tech Fest 2011</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Houston-DNUG-Presentation/">Houston DNUG Presentation</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/devlinliles">@devlinliles</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'devlinliles',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("devlinliles", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/devlinliles" class="twitter-follow-button" data-show-count="false">Follow @devlinliles</a>
+  
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Devlin Liles -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

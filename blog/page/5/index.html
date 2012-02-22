@@ -1,0 +1,1282 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>The Devlineator</title>
+  <meta name="author" content="Devlin Liles">
+
+  
+  <meta name="description" content="&nbsp;
+When serializing object to a client through WCF you often have reference objects that are needing to be serialized. This becomes a problem if &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://devlinliles.com/blog/page/5">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="The Devlineator" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">The Devlineator</a></h1>
+  
+    <h2>Random thoughts on .NET Development</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:devlinliles.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/WCF-Serialization-of-Cyclic-References/">WCF Serialization of Cyclic References</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2010-03-02T00:00:00-06:00" pubdate data-updated="true">Mar 2<span>nd</span>, 2010</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>&nbsp;</p>
+<pre class="csharpcode"><span class="kwrd"><span style="color: #000000;">When serializing object to a client through WCF you often have reference objects that are needing to be serialized. This becomes a problem if the <br />reference parent and reference child are both of the same type. This causes <br />WCF to barf over cyclic references. There are two fixes. If you are using <br />.NET 3.5 or previous you can do this (Thanks to <a href="http://chabster.blogspot.com/2008/02/wcf-cyclic-references-support.html" target="_blank">Chabster</a>):</span></span></pre>
+<p>namespace MetroServer.Infrastructure   <br />{    <br />&nbsp;&nbsp;&nbsp; [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Method)]    <br />&nbsp;&nbsp;&nbsp; public class CyclicReferencesAwareAttribute : Attribute, IContractBehavior,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IOperationBehavior    <br />&nbsp;&nbsp;&nbsp; {    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; private readonly bool _on;</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public CyclicReferencesAwareAttribute(bool on)   <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _on = on;    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public bool On   <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; get { return (_on); }    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #region IOperationBehavior Members</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; void IOperationBehavior.AddBindingParameters(OperationDescription operationDescription, System.ServiceModel.Channels.BindingParameterCollection bindingParameters)   <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; void IOperationBehavior.ApplyClientBehavior(OperationDescription operationDescription, System.ServiceModel.Dispatcher.ClientOperation clientOperation)   <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CyclicReferencesAwareContractBehavior.ReplaceDataContractSerializerOperationBehavior(operationDescription, On);    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; void IOperationBehavior.ApplyDispatchBehavior(OperationDescription operationDescription, System.ServiceModel.Dispatcher.DispatchOperation dispatchOperation)   <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CyclicReferencesAwareContractBehavior.ReplaceDataContractSerializerOperationBehavior(operationDescription, On);    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; void IOperationBehavior.Validate(OperationDescription operationDescription)   <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #endregion</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #region IContractBehavior Members</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; void IContractBehavior.AddBindingParameters(ContractDescription contractDescription, ServiceEndpoint endpoint, System.ServiceModel.Channels.BindingParameterCollection bindingParameters)   <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; void IContractBehavior.ApplyClientBehavior(ContractDescription contractDescription, ServiceEndpoint endpoint, System.ServiceModel.Dispatcher.ClientRuntime clientRuntime)   <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CyclicReferencesAwareContractBehavior.ReplaceDataContractSerializerOperationBehaviors(contractDescription, On);    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; void IContractBehavior.ApplyDispatchBehavior(ContractDescription contractDescription, ServiceEndpoint endpoint, System.ServiceModel.Dispatcher.DispatchRuntime dispatchRuntime)   <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CyclicReferencesAwareContractBehavior.ReplaceDataContractSerializerOperationBehaviors(contractDescription, On);    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; void IContractBehavior.Validate(ContractDescription contractDescription, ServiceEndpoint endpoint)   <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #endregion   <br />&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;&nbsp;&nbsp; public class CyclicReferencesAwareContractBehavior : IContractBehavior   <br />&nbsp;&nbsp;&nbsp; {    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; private const Int32 maxItemsInObjectGraph = 0xFFFF;    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; private const bool ignoreExtensionDataObject = false;</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; private bool _on;</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public CyclicReferencesAwareContractBehavior(bool on)   <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _on = on;    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #region IContractBehavior Members</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public void AddBindingParameters(ContractDescription contractDescription, ServiceEndpoint endpoint, BindingParameterCollection bindingParameters)   <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public void ApplyClientBehavior(ContractDescription contractDescription, ServiceEndpoint endpoint, ClientRuntime clientRuntime)   <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ReplaceDataContractSerializerOperationBehaviors(contractDescription, _on);    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public void ApplyDispatchBehavior(ContractDescription contractDescription, ServiceEndpoint endpoint, DispatchRuntime dispatchRuntime)   <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ReplaceDataContractSerializerOperationBehaviors(contractDescription, _on);    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; internal static void ReplaceDataContractSerializerOperationBehaviors(ContractDescription contractDescription, bool on)   <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; foreach (var operation in contractDescription.Operations)    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ReplaceDataContractSerializerOperationBehavior(operation, on);    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; internal static void ReplaceDataContractSerializerOperationBehavior(OperationDescription operation, bool on)   <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (operation.Behaviors.Remove(typeof(DataContractSerializerOperationBehavior)) || operation.Behaviors.Remove(typeof(ApplyCyclicDataContractSerializerOperationBehavior)))    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; operation.Behaviors.Add(new ApplyCyclicDataContractSerializerOperationBehavior(operation, maxItemsInObjectGraph, ignoreExtensionDataObject, on));    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public void Validate(ContractDescription contractDescription, ServiceEndpoint endpoint)   <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #endregion   <br />&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;&nbsp;&nbsp; internal class ApplyCyclicDataContractSerializerOperationBehavior : DataContractSerializerOperationBehavior   <br />&nbsp;&nbsp;&nbsp; {    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; private readonly Int32 _maxItemsInObjectGraph;    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; private readonly bool _ignoreExtensionDataObject;    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; private readonly bool _preserveObjectReferences;</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public ApplyCyclicDataContractSerializerOperationBehavior(OperationDescription operationDescription, Int32 maxItemsInObjectGraph, bool ignoreExtensionDataObject, bool preserveObjectReferences)   <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : base(operationDescription)    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _maxItemsInObjectGraph = maxItemsInObjectGraph;    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _ignoreExtensionDataObject = ignoreExtensionDataObject;    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _preserveObjectReferences = preserveObjectReferences;    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public override XmlObjectSerializer CreateSerializer(Type type, String name, String ns, IList&lt;Type&gt; knownTypes)   <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return (new DataContractSerializer(type, name, ns, knownTypes, _maxItemsInObjectGraph, _ignoreExtensionDataObject, _preserveObjectReferences, null /*dataContractSurrogate*/));    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public override XmlObjectSerializer CreateSerializer(Type type, XmlDictionaryString name, XmlDictionaryString ns, IList&lt;Type&gt; knownTypes)   <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return (new DataContractSerializer(type, name, ns, knownTypes, _maxItemsInObjectGraph, _ignoreExtensionDataObject, _preserveObjectReferences, null /*dataContractSurrogate*/));    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;&nbsp;&nbsp; }</p>
+<blockquote>
+<p>Usage:</p>
+</blockquote>
+<p>[OperationContract]   <br />[CyclicReferenceAware(true)]    <br />Object MyMethod(int number);&nbsp;</p>
+<blockquote>
+<p>Or if you use .NET 3.5 SP1 you can do this:</p>
+</blockquote>
+<p>[DataContract(IsReference = true)]   <br />public class MyClass    <br />&nbsp; {    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [DataMember]    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public string MyProperty{ get; set;}    <br />&nbsp; }</p>
+<blockquote>
+<p>I think you will agree .NET 3.5 SP1 is better.</p>
+</blockquote>
+<p><!-- .csharpcode, .csharpcode pre { 	font-size: small; 	color: black; 	font-family: consolas, "Courier New", courier, monospace; 	background-color: #ffffff; 	/*white-space: pre;*/ } .csharpcode pre { margin: 0em; } .csharpcode .rem { color: #008000; } .csharpcode .kwrd { color: #0000ff; } .csharpcode .str { color: #006080; } .csharpcode .op { color: #0000c0; } .csharpcode .preproc { color: #cc6633; } .csharpcode .asp { background-color: #ffff00; } .csharpcode .html { color: #800000; } .csharpcode .attr { color: #ff0000; } .csharpcode .alt  { 	background-color: #f4f4f4; 	width: 100%; 	margin: 0em; } .csharpcode .lnum { color: #606060; } --><!-- .csharpcode, .csharpcode pre { 	font-size: small; 	color: black; 	font-family: consolas, "Courier New", courier, monospace; 	background-color: #ffffff; 	/*white-space: pre;*/ } .csharpcode pre { margin: 0em; } .csharpcode .rem { color: #008000; } .csharpcode .kwrd { color: #0000ff; } .csharpcode .str { color: #006080; } .csharpcode .op { color: #0000c0; } .csharpcode .preproc { color: #cc6633; } .csharpcode .asp { background-color: #ffff00; } .csharpcode .html { color: #800000; } .csharpcode .attr { color: #ff0000; } .csharpcode .alt  { 	background-color: #f4f4f4; 	width: 100%; 	margin: 0em; } .csharpcode .lnum { color: #606060; } --></p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/LINQ-Lambda-and-the-Learning-Curve/">LINQ, Lambda and the Learning Curve</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2010-01-03T00:00:00-06:00" pubdate data-updated="true">Jan 3<span>rd</span>, 2010</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Been away for a while working on a 107,000 hour project. It isn?t done, but I am making time to blog and do my technical mentorship, because I have come to realize that there will always be high priority projects. You have to take the time to train and mentor during those projects because of that. Now on to the show.</p>  <p>I know that LINQ has received a massive welcome from the community and I have to say that it is a deserved on. On the whole it is a great addition to the language. I however don?t like one part of it. Verbose LINQ. I realize that it is more SQL like and that it is perceived to&#160; shorten the learning curve, but I disagree. Lambdas are where the true power of LINQ sit and using verbose to me seems to focus you to learn LINQ one way so that you can re-learn it another. </p>  <p>I am going to focus on the Lambda side of LINQ simply out of preference. Keep an eye out here for the verbose VS. lambda death match, but that is a post for another time.</p>  <p>Lambda statements are actually fairly simple once you break them up.</p>  <pre class="csharpcode">SomeList.Where(c=&gt;c.Id == someInt);</pre>
+
+<p><style type="text/css">
+
+
+.csharpcode, .csharpcode pre
+{
+	font-size: small;
+	color: black;
+	font-family: consolas, &#8220;Courier New&#8221;, courier, monospace;
+	background-color: #ffffff;
+	/*white-space: pre;*/
+}
+.csharpcode pre { margin: 0em; }
+.csharpcode .rem { color: #008000; }
+.csharpcode .kwrd { color: #0000ff; }
+.csharpcode .str { color: #006080; }
+.csharpcode .op { color: #0000c0; }
+.csharpcode .preproc { color: #cc6633; }
+.csharpcode .asp { background-color: #ffff00; }
+.csharpcode .html { color: #800000; }
+.csharpcode .attr { color: #ff0000; }
+.csharpcode .alt 
+{
+	background-color: #f4f4f4;
+	width: 100%;
+	margin: 0em;
+}
+.csharpcode .lnum { color: #606060; }</style>The above is the lambda conversion of this code block</p>
+
+<pre class="csharpcode"><span class="kwrd">foreach</span> (Item item <span class="kwrd">in</span> SomeList)
+{
+    If(item.Id == soemInt)
+        SomeOtherList.Add(item);
+}</pre>
+<style type="text/css">
+
+
+.csharpcode, .csharpcode pre
+{
+	font-size: small;
+	color: black;
+	font-family: consolas, &#8220;Courier New&#8221;, courier, monospace;
+	background-color: #ffffff;
+	/*white-space: pre;*/
+}
+.csharpcode pre { margin: 0em; }
+.csharpcode .rem { color: #008000; }
+.csharpcode .kwrd { color: #0000ff; }
+.csharpcode .str { color: #006080; }
+.csharpcode .op { color: #0000c0; }
+.csharpcode .preproc { color: #cc6633; }
+.csharpcode .asp { background-color: #ffff00; }
+.csharpcode .html { color: #800000; }
+.csharpcode .attr { color: #ff0000; }
+.csharpcode .alt 
+{
+	background-color: #f4f4f4;
+	width: 100%;
+	margin: 0em;
+}
+.csharpcode .lnum { color: #606060; }</style>
+
+<p>Lets break down the lambda so that this is a bit more clear.</p>
+
+<p>c =&gt;</p>
+
+<p>This statement is declaring that the item in the list we are looking at is going to be held in the local variable named ?c?. This is no different than naming the variable in a for each loop ?c?. You can name your lambda variables more intuitively and I would encourage you to do so. Something like this.</p>
+
+<pre class="csharpcode">SomeList.Where(menuItem =&gt; MenuItem.Id == someInt);</pre>
+<style type="text/css">
+
+
+.csharpcode, .csharpcode pre
+{
+	font-size: small;
+	color: black;
+	font-family: consolas, &#8220;Courier New&#8221;, courier, monospace;
+	background-color: #ffffff;
+	/*white-space: pre;*/
+}
+.csharpcode pre { margin: 0em; }
+.csharpcode .rem { color: #008000; }
+.csharpcode .kwrd { color: #0000ff; }
+.csharpcode .str { color: #006080; }
+.csharpcode .op { color: #0000c0; }
+.csharpcode .preproc { color: #cc6633; }
+.csharpcode .asp { background-color: #ffff00; }
+.csharpcode .html { color: #800000; }
+.csharpcode .attr { color: #ff0000; }
+.csharpcode .alt 
+{
+	background-color: #f4f4f4;
+	width: 100%;
+	margin: 0em;
+}
+.csharpcode .lnum { color: #606060; }</style>
+
+<p>Once the object is declared you have the ability to use all of the members of that object. That is how we are able to use the ?Id? property to check something for a Boolean property. Selecting based on some Boolean expression is the most common use for Lambdas but not the only one.</p>
+
+<pre class="csharpcode">List&lt;SubMenu&gt; submenus = SomeList.Select(menuItem =&gt; <span class="kwrd">new</span> SubMenu() 
+                                                   {
+                                                         ParentMenuId = menuItem.Id 
+                                                   });</pre>
+<style type="text/css">
+
+.csharpcode, .csharpcode pre
+{
+	font-size: small;
+	color: black;
+	font-family: consolas, &#8220;Courier New&#8221;, courier, monospace;
+	background-color: #ffffff;
+	/*white-space: pre;*/
+}
+.csharpcode pre { margin: 0em; }
+.csharpcode .rem { color: #008000; }
+.csharpcode .kwrd { color: #0000ff; }
+.csharpcode .str { color: #006080; }
+.csharpcode .op { color: #0000c0; }
+.csharpcode .preproc { color: #cc6633; }
+.csharpcode .asp { background-color: #ffff00; }
+.csharpcode .html { color: #800000; }
+.csharpcode .attr { color: #ff0000; }
+.csharpcode .alt 
+{
+	background-color: #f4f4f4;
+	width: 100%;
+	margin: 0em;
+}
+.csharpcode .lnum { color: #606060; }</style><style type="text/css">
+
+
+.csharpcode, .csharpcode pre
+{
+	font-size: small;
+	color: black;
+	font-family: consolas, &#8220;Courier New&#8221;, courier, monospace;
+	background-color: #ffffff;
+	/*white-space: pre;*/
+}
+.csharpcode pre { margin: 0em; }
+.csharpcode .rem { color: #008000; }
+.csharpcode .kwrd { color: #0000ff; }
+.csharpcode .str { color: #006080; }
+.csharpcode .op { color: #0000c0; }
+.csharpcode .preproc { color: #cc6633; }
+.csharpcode .asp { background-color: #ffff00; }
+.csharpcode .html { color: #800000; }
+.csharpcode .attr { color: #ff0000; }
+.csharpcode .alt 
+{
+	background-color: #f4f4f4;
+	width: 100%;
+	margin: 0em;
+}
+.csharpcode .lnum { color: #606060; }</style>
+
+<p>In this example we have created a submenu item from all the menu items in the list. We did this through the power of LINQ to let use change the output type of the selection at will. This is very usefull when you are creating items from other items. The code block that would represent is:</p>
+
+<pre class="csharpcode">List&lt;SubMenu&gt; SubMenus = <span class="kwrd">new</span> List&lt;SubMenu&gt;();
+
+<span class="kwrd">foreach</span>(MenuItem item <span class="kwrd">in</span> SomeList)
+{
+    SubMenu subMenu = <span class="kwrd">new</span> SubMenu();
+    subMenu.ParentMenuId = item.Id;
+    SomeOtherList.Add(subMenu);
+}</pre>
+<style type="text/css">
+
+
+.csharpcode, .csharpcode pre
+{
+	font-size: small;
+	color: black;
+	font-family: consolas, &#8220;Courier New&#8221;, courier, monospace;
+	background-color: #ffffff;
+	/*white-space: pre;*/
+}
+.csharpcode pre { margin: 0em; }
+.csharpcode .rem { color: #008000; }
+.csharpcode .kwrd { color: #0000ff; }
+.csharpcode .str { color: #006080; }
+.csharpcode .op { color: #0000c0; }
+.csharpcode .preproc { color: #cc6633; }
+.csharpcode .asp { background-color: #ffff00; }
+.csharpcode .html { color: #800000; }
+.csharpcode .attr { color: #ff0000; }
+.csharpcode .alt 
+{
+	background-color: #f4f4f4;
+	width: 100%;
+	margin: 0em;
+}
+.csharpcode .lnum { color: #606060; }</style>
+
+<p>To me this power is amazing. I have the ability to replace entire loops with a single line. The hit to readability is a concern but lambdas lend themselves to so many applications, and are key to LINQ so it should be part of the core toolset of a developer. If you use some sense and name your lambda variables intuitively you should get a lot of great millage out of LINQ without losing your readability.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/My-Story/">My Story</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-09-17T00:00:00-05:00" pubdate data-updated="true">Sep 17<span>th</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>My friend Jay Smith came up with the idea to post our stories on a blog post to allow the readers to find out more about us. His blog is at <a href="http://jaysmith.us">http://jaysmith.us</a> check it out. </p>  <p>I graduated high school in the spring of 2003 and took a summer job before starting college the next spring. I had been writing software since I was 8 and wanted to write it professionally after college, if of course I didn?t become an international soccer phenomenon I was working at a tire retreading shop when one day our boss decided to play a joke on his brother. His brother had let him borrow a 18 wheeler trailer, and he thought it would be funning to load it up with pallets before sending it back. We loaded these out of the field behind the shop. During loading this I got very sick and starting throwing up. I went home thinking it was just a stomach bug. When I got home I took a bath due to being very cold. I got out of the bath still shivering and unable to stop so my fianc? and brother decided to take me to the doctor. On the way to the doctor I went into seizures and they rushed me to the hospital. Once at the hospital I was admitted to the ER and they found 13 bite marks from my right shoulder to me left thigh. They tested 3 of the bite marks and found out that they bites were from a black widow. They didn?t order the antivenom for reasons I still don?t understand. The neurotoxin of the black widow normally goes into the body?s fat stores and is pushed out of the body in 2-3 weeks. I was 6?4? and 201 lbs after playing soccer competitively for 12 years and internationally for 3 years. I have very little body fat so the toxin went into the lining of my abdominal wall and continued to cause my abdominal muscles to seize for 9 months. During that time I was giving Methotrexate treatments and the doctors tried many things not having seen anything like this before. The treatments they said would prevent me from having children but my fianc? was pregnant by 2 weeks so we took that as a miracle.&#160; After 9 months of ER visits and horrible amounts of pain the doctor told me I would just have to deal with the pain and they were going to install a morphine pump in my back to manage the pain. They made an inventory mistake which caused them to have to order a pump for my body size (which after 9 months of all this was 6?4? and 135 lbs.) The doctor gave me duragesic patches until the pump came in. I ended up being allergic to the adhesive and threw up for 2-3 days. I got dehydrated enough that the rest of the venom was force out of my abdominal wall and I have been symptom free ever since. I was in a deep depression for a little over a year after this until my daughter was born. I think the term is rock bottom but that is what I hit. I got back on my feet and got a job working at the Tyson Foods factory that my dad managed safety at. I worked my butt off for 5 months and was promoted to management-support overseeing 5-7 guys in the receiving area. While in this position I wrote some work around software to fix some broken pieces of the MES system. This got the attention of the director of MES execution at corporate IS. He came to Sherman and we talked. He asked to have my resume and 4 months later with the help of a great recruiter I was on the MES team writing software. That is the short version of my story and how I came into the Software Development profession. </p>  <p>I am hoping several other friends of mine will post this kind of post to allow people to connect with the authors.</p>  <p>&#160;</p>  <p>Watch this places:</p>  <p><a href="http://jaysmith.us/">http://jaysmith.us/</a></p>  <p><a href="http://robtennyson.us/">http://robtennyson.us/</a></p>  <p>&#160;</p>  <p>Thanks for the time</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/Comments-versus-Well-written-code/">Comments Versus Well Written Code</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-09-15T00:00:00-05:00" pubdate data-updated="true">Sep 15<span>th</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>So the conversation started today about a guy leaving our team and needing to knowledge transfer his part of the code base to the other team members. The lead programmer on the project told him to stop working on new development and start commenting his code so that the people coming in after him would understand what he had been doing.</p>
+<p>Personally the first thing I do when opening a code base that I am not familiar with is to press CTRL-M, CTRL-O and start looking around. ( CTRL-M, CTRL-O is the default visual studio short cut for minimize all outlining. You get to see method declarations, and that is about it.) This will collapse blocks of comments so that they are not intrusive. I never re-expand them. The idea that you need comments for understanding code to me is a big red flag for bad code. I feel well named variables are much more intuitive to learning a new code base than using comments.</p>
+<p>I have never sat down to learn an entire code base at one sitting. I am normally working on a small part or a bug fix and need to find something that is very specific. To that end a well named class/method/property is much more helpful with you use the ?Edit-&gt;Find? code parser than having to sort through and search all the comments for the set of information that you need.</p>
+<p>Also, I am sure that almost everyone has opened a piece of code that had a form1, or class1 class right? Those names that MS graces us with are not supposed to stay named that. Here is the way you avoid this.</p>
+<p>Step 1: Go to add class</p>
+<p>Step 2: DON?T CLICK OK!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!</p>
+<p>Step 3: Look down at the bottom of the dialog and type in something intuitive.</p>
+<p><a href="http://blog.devlinliles.com/image.axd?picture=image_6.png"><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="image" src="http://blog.devlinliles.com/image.axd?picture=image_thumb_6.png" border="0" alt="image" width="394" height="238" /></a></p>
+<p>Step 4: Go drink something with an umbrella and retire to the happy place of understandable class name land.</p>
+<p>To prove my point.</p>
+<div class="csharpcode">
+<pre class="alt"><span class="lnum">   1:  </span><span class="rem">//This is a class that handles </span></pre>
+<pre><span class="lnum">   2:  </span><span class="rem">//calculating tax for sales in </span></pre>
+<pre class="alt"><span class="lnum">   3:  </span><span class="rem">//several states</span></pre>
+<pre><span class="lnum">   4:  </span><span class="kwrd">public</span> <span class="kwrd">class</span> class1</pre>
+<pre class="alt"><span class="lnum">   5:  </span>{</pre>
+<pre><span class="lnum">   6:  </span>        <span class="rem">//Calc sales total for a couple states</span></pre>
+<pre class="alt"><span class="lnum">   7:  </span>        <span class="rem">//AR - tax 9.5%</span></pre>
+<pre><span class="lnum">   8:  </span>        <span class="rem">//NM - tax 5.5%</span></pre>
+<pre class="alt"><span class="lnum">   9:  </span>        <span class="rem">//TX - tax 8.5%    </span></pre>
+<pre><span class="lnum">  10:  </span>        <span class="kwrd">public</span> <span class="kwrd">decimal</span> calc(<span class="kwrd">decimal</span> a, <span class="kwrd">string</span> n)</pre>
+<pre class="alt"><span class="lnum">  11:  </span>       {</pre>
+<pre><span class="lnum">  12:  </span>             <span class="rem">//The quick red fox jumped over the lazy brown dog.</span></pre>
+<pre class="alt"><span class="lnum">  13:  </span>             <span class="rem">//The quick red fox jumped over the lazy brown dog.</span></pre>
+<pre><span class="lnum">  14:  </span>             <span class="rem">//The quick red fox jumped over the lazy brown dog.</span></pre>
+<pre class="alt"><span class="lnum">  15:  </span>             <span class="rem">//The quick red fox jumped over the lazy brown dog.</span></pre>
+<pre><span class="lnum">  16:  </span>             <span class="kwrd">switch</span>(n)</pre>
+<pre class="alt"><span class="lnum">  17:  </span>             {</pre>
+<pre><span class="lnum">  18:  </span>                   <span class="kwrd">case</span> <span class="str">"AR"</span>:</pre>
+<pre class="alt"><span class="lnum">  19:  </span>                          {</pre>
+<pre><span class="lnum">  20:  </span>                                <span class="kwrd">return</span>  a * 1.095;</pre>
+<pre class="alt"><span class="lnum">  21:  </span>                           }</pre>
+<pre><span class="lnum">  22:  </span>                           <span class="kwrd">break</span>;</pre>
+<pre class="alt"><span class="lnum">  23:  </span>                    <span class="kwrd">case</span> <span class="str">"TX"</span>:</pre>
+<pre><span class="lnum">  24:  </span>                            {</pre>
+<pre class="alt"><span class="lnum">  25:  </span>                                <span class="kwrd">return</span> a * 1.0875;</pre>
+<pre><span class="lnum">  26:  </span>                            }</pre>
+<pre class="alt"><span class="lnum">  27:  </span>                            <span class="kwrd">break</span>;</pre>
+<pre><span class="lnum">  28:  </span>                    <span class="kwrd">case</span> <span class="str">"NM"</span>:</pre>
+<pre class="alt"><span class="lnum">  29:  </span>                           {</pre>
+<pre><span class="lnum">  30:  </span>                                <span class="kwrd">return</span> a * 1.055;</pre>
+<pre class="alt"><span class="lnum">  31:  </span>                            }</pre>
+<pre><span class="lnum">  32:  </span>                            <span class="kwrd">break</span>;</pre>
+<pre class="alt"><span class="lnum">  33:  </span>              }    </pre>
+<pre><span class="lnum">  34:  </span>       }</pre>
+<pre class="alt"><span class="lnum">  35:  </span>}</pre>
+</div>
+<p><!-- .csharpcode, .csharpcode pre { 	font-size: small; 	color: black; 	font-family: consolas, "Courier New", courier, monospace; 	background-color: #ffffff; 	/*white-space: pre;*/ } .csharpcode pre { margin: 0em; } .csharpcode .rem { color: #008000; } .csharpcode .kwrd { color: #0000ff; } .csharpcode .str { color: #006080; } .csharpcode .op { color: #0000c0; } .csharpcode .preproc { color: #cc6633; } .csharpcode .asp { background-color: #ffff00; } .csharpcode .html { color: #800000; } .csharpcode .attr { color: #ff0000; } .csharpcode .alt  { 	background-color: #f4f4f4; 	width: 100%; 	margin: 0em; } .csharpcode .lnum { color: #606060; } --></p>
+<p>versus my way</p>
+<div class="csharpcode">
+<pre class="alt"><span class="lnum">   1:  </span><span class="kwrd">public</span> <span class="kwrd">class</span> MultiStateSalesTaxCalculator</pre>
+<pre><span class="lnum">   2:  </span>{</pre>
+<pre class="alt"><span class="lnum">   3:  </span>        <span class="kwrd">public</span> <span class="kwrd">decimal</span> ARKANSAS_STATE_SALES_TAX = 0.095;</pre>
+<pre><span class="lnum">   4:  </span>        <span class="kwrd">public</span> <span class="kwrd">decimal</span> TEXAS_STATE_SALES_TAX = 0.095;</pre>
+<pre class="alt"><span class="lnum">   5:  </span>        <span class="kwrd">public</span> <span class="kwrd">decimal</span> NEW_MEXICO_STATE_SALES_TAX = 0.095;</pre>
+<pre><span class="lnum">   6:  </span>&nbsp;</pre>
+<pre class="alt"><span class="lnum">   7:  </span>        <span class="kwrd">public</span> <span class="kwrd">decimal</span> CalculateSalesTotalWithTaxByState(<span class="kwrd">decimal</span> SubTotal, <span class="kwrd">string</span> stateAbreveation)</pre>
+<pre><span class="lnum">   8:  </span>       {</pre>
+<pre class="alt"><span class="lnum">   9:  </span>             <span class="kwrd">switch</span>(stateAbreveation)</pre>
+<pre><span class="lnum">  10:  </span>             {</pre>
+<pre class="alt"><span class="lnum">  11:  </span>                   <span class="kwrd">case</span> <span class="str">"AR"</span>:</pre>
+<pre><span class="lnum">  12:  </span>                          {</pre>
+<pre class="alt"><span class="lnum">  13:  </span>                                <span class="kwrd">return</span>  SubTotal + ( SubTotal * ARKANSAS_STATE_SALES_TAX)  ;</pre>
+<pre><span class="lnum">  14:  </span>                           }</pre>
+<pre class="alt"><span class="lnum">  15:  </span>                           <span class="kwrd">break</span>;</pre>
+<pre><span class="lnum">  16:  </span>                    <span class="kwrd">case</span> <span class="str">"TX"</span>:</pre>
+<pre class="alt"><span class="lnum">  17:  </span>                           {</pre>
+<pre><span class="lnum">  18:  </span>                                <span class="kwrd">return</span> SubTotal + ( SubTotal * TEXAS_STATE_SALES_TAX);</pre>
+<pre class="alt"><span class="lnum">  19:  </span>                            }</pre>
+<pre><span class="lnum">  20:  </span>                            <span class="kwrd">break</span>;</pre>
+<pre class="alt"><span class="lnum">  21:  </span>                    <span class="kwrd">case</span> <span class="str">"NM"</span>:</pre>
+<pre><span class="lnum">  22:  </span>                           {</pre>
+<pre class="alt"><span class="lnum">  23:  </span>                                <span class="kwrd">return</span> SubTotal + ( SubTotal * NEW_MEXICO_STATE_SALES_TAX);</pre>
+<pre><span class="lnum">  24:  </span>                            }</pre>
+<pre class="alt"><span class="lnum">  25:  </span>                            <span class="kwrd">break</span>;</pre>
+<pre><span class="lnum">  26:  </span>              }    </pre>
+<pre class="alt"><span class="lnum">  27:  </span>       }</pre>
+<pre><span class="lnum">  28:  </span>}</pre>
+</div>
+<p><!-- .csharpcode, .csharpcode pre { 	font-size: small; 	color: black; 	font-family: consolas, "Courier New", courier, monospace; 	background-color: #ffffff; 	/*white-space: pre;*/ } .csharpcode pre { margin: 0em; } .csharpcode .rem { color: #008000; } .csharpcode .kwrd { color: #0000ff; } .csharpcode .str { color: #006080; } .csharpcode .op { color: #0000c0; } .csharpcode .preproc { color: #cc6633; } .csharpcode .asp { background-color: #ffff00; } .csharpcode .html { color: #800000; } .csharpcode .attr { color: #ff0000; } .csharpcode .alt  { 	background-color: #f4f4f4; 	width: 100%; 	margin: 0em; } .csharpcode .lnum { color: #606060; } --></p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/C-Functions-that-might-help-pt-1/">C# Functions That Might Help Pt. 1</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-09-13T00:00:00-05:00" pubdate data-updated="true">Sep 13<span>th</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>When talking to a friend of mine we had the idea to do a blog series over C# functions that might help people if they don?t know about them. This will be categorized so you can keep up on it, and it will be once a week on Mondays. First I was going to start with ?continue?. Nest ifs inside a loop cause major performance issues in most applications but there are a few ways to avoid this. The MSDN definition of continue is ?The continue statement passes control to the next iteration of the enclosing iteration statement in which it appears.? . Here is the code snippet that we are going to clean up. ?Caution the following code is not suitable for young viewers or those that are faint of heart.?</p>  <pre class="csharpcode">IEnumerable&lt;ReflectionParameter&gt; test = <span class="kwrd">new</span> List&lt;ReflectionParameter&gt;();
+
+            <span class="kwrd">foreach</span> (var parameter <span class="kwrd">in</span> test)
+            {
+                <span class="kwrd">if</span> (parameter != <span class="kwrd">null</span>)
+                {
+                    parameter.MethodName = <span class="str">&quot;Something&quot;</span>;
+                    <span class="kwrd">if</span> (parameter.children != <span class="kwrd">null</span>)
+                    {
+                        <span class="kwrd">foreach</span> (var child <span class="kwrd">in</span> parameter.children)
+                        {
+                            <span class="kwrd">if</span> (child.MethodName == <span class="kwrd">null</span>)
+                            {
+                                child.MethodName = <span class="str">&quot;Something&quot;</span>;
+                            }
+                        }
+                    }
+                }
+            }</pre>
+
+<p>I know right? We can clean this up by inverting the first if to a continue statement.</p>
+
+<pre class="csharpcode">IEnumerable&lt;ReflectionParameter&gt; test = <span class="kwrd">new</span> List&lt;ReflectionParameter&gt;();
+
+            <span class="kwrd">foreach</span> (var parameter <span class="kwrd">in</span> test)
+            {
+                <span class="kwrd">if</span> (parameter == <span class="kwrd">null</span>) <span class="kwrd">continue</span>;
+                parameter.MethodName = <span class="str">&quot;Something&quot;</span>;
+                    <span class="kwrd">if</span> (parameter.children != <span class="kwrd">null</span>)
+                    {
+                        <span class="kwrd">foreach</span> (var child <span class="kwrd">in</span> parameter.children)
+                        {
+                            <span class="kwrd">if</span> (child.MethodName == <span class="kwrd">null</span>)
+                            {
+                                child.MethodName = <span class="str">&quot;Something&quot;</span>;
+                            }
+                        }
+                     }
+            }</pre>
+
+<pre class="csharpcode">We can still clean this up by inverting the children check to a continue statement.</pre>
+
+<pre class="csharpcode">IEnumerable&lt;ReflectionParameter&gt; test = <span class="kwrd">new</span> List&lt;ReflectionParameter&gt;();
+
+            <span class="kwrd">foreach</span> (var parameter <span class="kwrd">in</span> test)
+            {
+                <span class="kwrd">if</span> (parameter == <span class="kwrd">null</span>) <span class="kwrd">continue</span>;
+                parameter.MethodName = <span class="str">&quot;Something&quot;</span>;
+                <span class="kwrd">if</span> (parameter.children == <span class="kwrd">null</span>) <span class="kwrd">continue</span>;
+                <span class="kwrd">foreach</span> (var child <span class="kwrd">in</span> parameter.children)
+                {
+                    <span class="kwrd">if</span> (child.MethodName == <span class="kwrd">null</span>)
+                    {
+                        child.MethodName = <span class="str">&quot;Something&quot;</span>;
+                    }
+                }
+            }</pre>
+
+<p>We can also do this to the if inside the second for each loop.</p>
+
+<pre class="csharpcode">IEnumerable&lt;ReflectionParameter&gt; test = <span class="kwrd">new</span> List&lt;ReflectionParameter&gt;();
+
+            <span class="kwrd">foreach</span> (var parameter <span class="kwrd">in</span> test)
+            {
+                <span class="kwrd">if</span> (parameter == <span class="kwrd">null</span>) <span class="kwrd">continue</span>;
+                parameter.MethodName = <span class="str">&quot;Something&quot;</span>;
+                <span class="kwrd">if</span> (parameter.children == <span class="kwrd">null</span>) <span class="kwrd">continue</span>;
+                <span class="kwrd">foreach</span> (var child <span class="kwrd">in</span> parameter.children)
+                {
+                    <span class="kwrd">if</span> (child.MethodName != <span class="kwrd">null</span>) <span class="kwrd">continue</span>;
+                    child.MethodName = <span class="str">&quot;Something&quot;</span>;
+                }
+            }</pre>
+<style type="text/css">
+
+
+.csharpcode, .csharpcode pre
+{
+	font-size: small;
+	color: black;
+	font-family: consolas, &#8220;Courier New&#8221;, courier, monospace;
+	background-color: #ffffff;
+	/*white-space: pre;*/
+}
+.csharpcode pre { margin: 0em; }
+.csharpcode .rem { color: #008000; }
+.csharpcode .kwrd { color: #0000ff; }
+.csharpcode .str { color: #006080; }
+.csharpcode .op { color: #0000c0; }
+.csharpcode .preproc { color: #cc6633; }
+.csharpcode .asp { background-color: #ffff00; }
+.csharpcode .html { color: #800000; }
+.csharpcode .attr { color: #ff0000; }
+.csharpcode .alt 
+{
+	background-color: #f4f4f4;
+	width: 100%;
+	margin: 0em;
+}
+.csharpcode .lnum { color: #606060; }</style>
+
+<p>This is a much cleaner section of code but is not great. It still has a nested for each loop. which makes my insides scream, but we will attack that sort of nesting next week. </p>
+
+<p><style type="text/css">
+
+
+.csharpcode, .csharpcode pre
+{
+	font-size: small;
+	color: black;
+	font-family: consolas, &#8220;Courier New&#8221;, courier, monospace;
+	background-color: #ffffff;
+	/*white-space: pre;*/
+}
+.csharpcode pre { margin: 0em; }
+.csharpcode .rem { color: #008000; }
+.csharpcode .kwrd { color: #0000ff; }
+.csharpcode .str { color: #006080; }
+.csharpcode .op { color: #0000c0; }
+.csharpcode .preproc { color: #cc6633; }
+.csharpcode .asp { background-color: #ffff00; }
+.csharpcode .html { color: #800000; }
+.csharpcode .attr { color: #ff0000; }
+.csharpcode .alt 
+{
+	background-color: #f4f4f4;
+	width: 100%;
+	margin: 0em;
+}
+.csharpcode .lnum { color: #606060; }</style></p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/Generics-What-you-should-know/">Generics ? What You Should Know?</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-09-11T00:00:00-05:00" pubdate data-updated="true">Sep 11<span>th</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I have had some interesting conversations over the last week or so about generics. It was brought up out of a MCTS study group and then in the internal DNUG that I lead. so let me break it down.</p>
+<p>Without Generics -</p>
+<blockquote>
+<p><span style="background-color: #ffffff;">I have to setup collections of objects manual and for each type that I want to use. To add, sort, filter, or aggregate this collection takes a lot of code and time. Some things like ArrayList return objects which means all that casting or reflection over head to get into the objects I need.</span></p>
+</blockquote>
+<p>With Generics -</p>
+<blockquote>
+<p><span style="background-color: #ffffff;">I have to setup a collection and give it the input types. It handles sorting, filtering, adding, and aggregates through the use of generic Action&lt;T&gt;, Func&lt;T&gt;, or Predicate&lt;T&gt;. I can write sorts and filters and make them generic so that I don?t have to copy/paste change type.</span></p>
+</blockquote>
+<p>Generics are not the end all and be all but they help a great deal when you are trying not to repeat yourself. I have found that when using generics that the compiler actually spits out the methods with the implemented types in them, which means that generics while great are syntactic sugar, and I have a sweet tooth.</p>
+<p>With Linq being based on the use of IEnumerable&lt;T&gt; and the new parallel extensions to .NET 4.0 being able to spread the workload of Action&lt;T&gt; and Task&lt;T&gt; across multiple processors I would tell everyone. Start learning generics. It is easy to use once you wrap your head around it. Like if I wanted to add two numbers of different types I could write this:</p>
+<pre class="csharpcode"><span class="kwrd">public</span> <span class="kwrd">float</span> Add(<span class="kwrd">int</span> one, <span class="kwrd">decimal</span> two)
+{
+       <span class="kwrd">float</span> item = <span class="kwrd">new</span> <span class="kwrd">float</span>();
+       item = <span class="kwrd">float</span>.Parse(one.ToString()) + <span class="kwrd">float</span>.Parse(two.ToString());
+       <span class="kwrd">return</span> item;
+}
+
+<span class="kwrd">public</span> <span class="kwrd">float</span> Add(<span class="kwrd">decimal</span> one, <span class="kwrd">decimal</span> two)
+{
+       <span class="kwrd">float</span> item = <span class="kwrd">new</span> <span class="kwrd">float</span>();
+       item = <span class="kwrd">float</span>.Parse(one.ToString()) + <span class="kwrd">float</span>.Parse(two.ToString());
+       <span class="kwrd">return</span> item;
+}
+
+<span class="kwrd">public</span> <span class="kwrd">float</span> Add(<span class="kwrd">int</span> one, <span class="kwrd">int</span> two)
+{
+       <span class="kwrd">float</span> item = <span class="kwrd">new</span> <span class="kwrd">float</span>();
+       item = <span class="kwrd">float</span>.Parse(one.ToString()) + <span class="kwrd">float</span>.Parse(two.ToString());
+       <span class="kwrd">return</span> item;
+}
+
+<span class="kwrd">public</span> <span class="kwrd">float</span> Add(<span class="kwrd">double</span> one, <span class="kwrd">double</span> two)
+{
+       <span class="kwrd">float</span> item = <span class="kwrd">new</span> <span class="kwrd">float</span>();
+       item = <span class="kwrd">float</span>.Parse(one.ToString()) + <span class="kwrd">float</span>.Parse(two.ToString());
+       <span class="kwrd">return</span> item;
+}
+
+<span class="kwrd">public</span> <span class="kwrd">float</span> Add(<span class="kwrd">int</span> one, <span class="kwrd">double</span> two)
+{
+       <span class="kwrd">float</span> item = <span class="kwrd">new</span> <span class="kwrd">float</span>();
+       item = <span class="kwrd">float</span>.Parse(one.ToString()) + <span class="kwrd">float</span>.Parse(two.ToString());
+       <span class="kwrd">return</span> item;
+}
+
+<span class="kwrd">public</span> <span class="kwrd">float</span> Add(<span class="kwrd">double</span> one, <span class="kwrd">decimal</span> two)
+{
+       <span class="kwrd">float</span> item = <span class="kwrd">new</span> <span class="kwrd">float</span>();
+       item = <span class="kwrd">float</span>.Parse(one.ToString()) + <span class="kwrd">float</span>.Parse(two.ToString());
+       <span class="kwrd">return</span> item;
+}</pre>
+<p><!-- .csharpcode, .csharpcode pre { 	font-size: small; 	color: black; 	font-family: consolas, "Courier New", courier, monospace; 	background-color: #ffffff; 	/*white-space: pre;*/ } .csharpcode pre { margin: 0em; } .csharpcode .rem { color: #008000; } .csharpcode .kwrd { color: #0000ff; } .csharpcode .str { color: #006080; } .csharpcode .op { color: #0000c0; } .csharpcode .preproc { color: #cc6633; } .csharpcode .asp { background-color: #ffff00; } .csharpcode .html { color: #800000; } .csharpcode .attr { color: #ff0000; } .csharpcode .alt  { 	background-color: #f4f4f4; 	width: 100%; 	margin: 0em; } .csharpcode .lnum { color: #606060; } -->or I could write this:</p>
+<pre class="csharpcode"><span class="kwrd">public</span> <span class="kwrd">float</span> Add&lt;T, T2&gt;(T one, T2 two)
+{
+      <span class="kwrd">return</span> <span class="kwrd">float</span>.Parse(one.ToString()) + <span class="kwrd">float</span>.Parse(two.ToString());
+}</pre>
+<p><!-- .csharpcode, .csharpcode pre { 	font-size: small; 	color: black; 	font-family: consolas, "Courier New", courier, monospace; 	background-color: #ffffff; 	/*white-space: pre;*/ } .csharpcode pre { margin: 0em; } .csharpcode .rem { color: #008000; } .csharpcode .kwrd { color: #0000ff; } .csharpcode .str { color: #006080; } .csharpcode .op { color: #0000c0; } .csharpcode .preproc { color: #cc6633; } .csharpcode .asp { background-color: #ffff00; } .csharpcode .html { color: #800000; } .csharpcode .attr { color: #ff0000; } .csharpcode .alt  { 	background-color: #f4f4f4; 	width: 100%; 	margin: 0em; } .csharpcode .lnum { color: #606060; } -->Which would you prefer?</p>
+<p>&nbsp;</p>
+<p>Enjoy, and remember.</p>
+<p>Code Like you have to support it.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/Tyson-Development-Conference-09-Setup/">Tyson Development Conference 09 - Setup</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-09-09T00:00:00-05:00" pubdate data-updated="true">Sep 9<span>th</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><pre class="csharpcode"><b></b></pre>
+
+<p>This past week has been less focused on code for me and more focused on getting stuff setup for the TDC09. 
+  <br />If you are not familiar with the TDC09 let me explain. Tyson Development Conference 2009 is a pet project of mine. I programmer for Tyson and had the idea with a couple friends at work that an internal version of TechEd would help Tyson IS overall. So I took it to the powers that be. They were all sorts of behind it, and now I am organizing it. It has turned into a lot of fun. I am getting to meet people I have never seen, and talk with groups like Microsoft and INETA for the speakers. So far it is 8 tracks, 6 sessions per track and filled with great stuff. 
+
+  <br />That has been most of my free (not at work) time as of late. Hopefully next weeks blog will be more Code based as I am having tons of fun with Dynamic report engines. 
+
+  <br />See you next week.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/Test-Driven-Development-Not-for-the-faint-of-heart/">Test Driven Development ? Not for the Faint of Heart.</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-09-09T00:00:00-05:00" pubdate data-updated="true">Sep 9<span>th</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I started coding in C# about a year ago and almost immediately found that once I had completed a project I wanted to go back and streamline and improve it. When time allowed I started trying to do this and found that the code was very hard to verify functionality. I also found that some of my design choices were pretty novice, due to that the code was very hard to enhance.&#160; <br />I got introduced to the idea of test driven development by a good friend Rob Tennyson. He presented on the topic at the Tyson Foods internal .NET user group. This peaked my interest for two reasons. One, It would allow for avoiding the novice mistakes in design and class layout. Two, it would allow for my code to have automated verification of functionality.     <br />I set out to work TDD into my everyday process and hit several brick walls.     <br />1. You end up making things public for testing that should not be otherwise, or putting test code into the finished product (neither is a workable solution in my book). I am using NUnit and I didn&#8217;t want to have a reference to a testing package in my production code. Adding a dependency to the production code that other developers will have to deal with was not my idea of a stable codebase.     <br />2. Being a beginner in TDD as well as C# I didn&#8217;t know what I didn&#8217;t know so by that lack of code and language knowledge I repeated some novice mistakes in design. Not as many as before but still a few. Some would argue that I gained knowledge and that is why I see those bottlenecks and design issues more clearly and to that my only reply is &quot;yeah prolly&quot;.     <br />3. Abstraction is a premium but sometimes too much work. I write a lot of small applications, an editor here, a website there. While I do work to abstract a lot of my code and provide interfaces in the right places for a small application putting in the level of seams needed for proper TDD would be building an elevator in an outhouse.     <br />4. I found it increasingly difficult to find answers in my hunt for TDD utopia. I read several books on the subject and found that I was more often than not provided with contradictory rules to apply, or methods to use. Microsoft&#8217;s &quot;Test-Driven Development in Microsoft .NET&quot; by James W. Newkirk and Alexei A. Vorontsov gave great baseline examples and presented the basics of TDD very well, however it fails to provide good solid base for TDD in the real world. The application that they base a lot of their examples around ignores some fairly large aspects of the TDD mindset like separation of integration testing and design testing.</p>  <p>With the miles behind me and a TDD utopia still nowhere in sight I have found several good ideas. </p>  <p>1. Kent Beck&#8217;s TDD by Example is a great resource for TDD on the intermediate to advanced level.</p>  <p>2. Not everything needs to be designed using TDD, some things are just too trivial.</p>  <p>3. TDD is a design pattern, and it should be used as such. If you want automated testing use automated tests, but if you want TDD programs before one line of code is written have a test list and priority assigned to them.</p>  <p>I am working on a TDD project currently with Jay Smith and Rob Tennyson to write a checkers application using only TDD and having no UI or Data Layer. Building Logic first, then the UI, and finally adding a data layer to detail how to handle those real world integration concerns.</p>  <p>Just Remember Code like you have to support it.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/SQL-Server-Reporting-Services-Ad-Hoc-integrated-with-ASPNET/">SQL Server Reporting Services ? Ad Hoc Integrated With ASP.NET</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-09-09T00:00:00-05:00" pubdate data-updated="true">Sep 9<span>th</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>So I ran into a couple of different issues when setting up advanced reporting scenarios with reporting services. While reporting services runs fairly well in the server report situations but lacks flexibility in application integration scenarios. Having to hard code datasets for each report and hard code fill and get methods seemed to lack flair to me. I wanted a more robust and elegant solution. So I came up with an idea that allowed me to take preset report segments and load them dynamically into a report definition before passing it to the renderer. </p> <p>You start by setting up a blank RDLC with header and footer. This allows you to keep formatting the same through the report. You can use global variables or parameters in the header and the footers. Most of the time this will be standard for the application and template for the company.</p> <p><img src="http://devlinliles.com/ImageHandler.ashx?schemaName=Blog&amp;id=6479be44-e6d9-46a2-84cd-2ac9b3f5db59"></p> <p>You load the RDLC from a file stream into a XDocument. </p><pre class="csharpcode"><span class="kwrd">private</span> Stream Load_FileStream()
+
+{
+
+Stream MasterReport =  
+<span class="kwrd">new</span> FileStream(Server.MapPath(<span class="str">"~/Report/Master.rdlc"</span>),FileMode.Open,FileAccess.Read);
+
+<span class="kwrd">return</span> MasterReport;
+
+}</pre>
+<style type="text/css">
+
+
+.csharpcode, .csharpcode pre
+{
+	font-size: small;
+	color: black;
+	font-family: consolas, &#8220;Courier New&#8221;, courier, monospace;
+	background-color: #ffffff;
+	/*white-space: pre;*/
+}
+.csharpcode pre { margin: 0em; }
+.csharpcode .rem { color: #008000; }
+.csharpcode .kwrd { color: #0000ff; }
+.csharpcode .str { color: #006080; }
+.csharpcode .op { color: #0000c0; }
+.csharpcode .preproc { color: #cc6633; }
+.csharpcode .asp { background-color: #ffff00; }
+.csharpcode .html { color: #800000; }
+.csharpcode .attr { color: #ff0000; }
+.csharpcode .alt 
+{
+	background-color: #f4f4f4;
+	width: 100%;
+	margin: 0em;
+}
+.csharpcode .lnum { color: #606060; }</style>
+
+<p>Using LINQ you can search the nodes for the report items node in the body. This is where the guts of the report is stored.</p><pre class="csharpcode"><span class="kwrd">private</span> Stream PrepReport()
+
+{
+XDocument ReportDoc = XDocument.Load(XmlReader.Create(Load_FileStream()));
+IEnumerable&lt;XNode&gt; hold = ReportDoc.DescendantNodes().InDocumentOrder();
+XElement BodyItems = 
+(XElement) hold.Where(n =&gt;
+                           n.GetType() != <span class="kwrd">typeof</span> (XText) &amp;&amp; 
+                           ((XElement) n).Parent != <span class="kwrd">null</span> &amp;&amp;
+                           ((XElement) n).Name.LocalName.ToUpper() == <span class="str">"REPORTITEMS"</span> &amp;&amp;
+                           ((XElement) n).Parent.Name.LocalName.ToUpper() == <span class="str">"BODY"</span>).SingleOrDefault();
+            BodyItems.Add(NewNodes(ReportDoc.Root.Name.Namespace));
+<span class="kwrd">return</span> CreateMemoryStream(ReportDoc);
+}</pre>
+<style type="text/css">
+
+
+.csharpcode, .csharpcode pre
+{
+	font-size: small;
+	color: black;
+	font-family: consolas, &#8220;Courier New&#8221;, courier, monospace;
+	background-color: #ffffff;
+	/*white-space: pre;*/
+}
+.csharpcode pre { margin: 0em; }
+.csharpcode .rem { color: #008000; }
+.csharpcode .kwrd { color: #0000ff; }
+.csharpcode .str { color: #006080; }
+.csharpcode .op { color: #0000c0; }
+.csharpcode .preproc { color: #cc6633; }
+.csharpcode .asp { background-color: #ffff00; }
+.csharpcode .html { color: #800000; }
+.csharpcode .attr { color: #ff0000; }
+.csharpcode .alt 
+{
+	background-color: #f4f4f4;
+	width: 100%;
+	margin: 0em;
+}
+.csharpcode .lnum { color: #606060; }</style>
+
+<p>You can then use LINQ to XML to insert a new node package to add tables, sub-reports, or graphs. In this example I add a sub-report with a parameter passed to it.</p>
+<p>&nbsp;</p><pre class="csharpcode"><span class="kwrd">private</span> XElement NewNodes(XNamespace @<span class="kwrd">namespace</span>)
+
+{
+    var holder = <span class="kwrd">new</span> XElement(@<span class="kwrd">namespace</span> + <span class="str">"Subreport"</span>,
+     <span class="kwrd">new</span> <span class="kwrd">object</span>[] {
+     <span class="kwrd">new</span> XAttribute(<span class="str">"Name"</span>, <span class="str">"Subreport1"</span>),
+     <span class="kwrd">new</span> XElement(@<span class="kwrd">namespace</span> + <span class="str">"Parameters"</span>,
+     <span class="kwrd">new</span> XElement(@<span class="kwrd">namespace</span> + <span class="str">"Parameter"</span>,
+     <span class="kwrd">new</span> <span class="kwrd">object</span>[]{
+          <span class="kwrd">new</span> XElement(@<span class="kwrd">namespace</span> + <span class="str">"Value"</span>,<span class="str">"=Parameter!Period.Value"</span>),
+          <span class="kwrd">new</span> XAttribute(<span class="str">"Name"</span>, <span class="str">"Period"</span>)
+ })),
+<span class="kwrd">new</span> XElement(@<span class="kwrd">namespace</span> + <span class="str">"ReportName"</span>, <span class="str">"NameHere"</span>),
+<span class="kwrd">new</span> XElement(@<span class="kwrd">namespace</span> + <span class="str">"Top"</span>, <span class="str">"0.25in"</span>),
+<span class="kwrd">new</span> XElement(@<span class="kwrd">namespace</span> + <span class="str">"Width"</span>, <span class="str">"7.25in"</span>),
+<span class="kwrd">new</span> XElement(@<span class="kwrd">namespace</span> + <span class="str">"Left"</span>, <span class="str">"0.125in"</span>),
+<span class="kwrd">new</span> XElement(@<span class="kwrd">namespace</span> + <span class="str">"Height"</span>, <span class="str">"0.25in"</span>)
+ });
+<span class="kwrd">return</span> holder;
+}</pre>
+<style type="text/css">
+
+
+.csharpcode, .csharpcode pre
+{
+	font-size: small;
+	color: black;
+	font-family: consolas, &#8220;Courier New&#8221;, courier, monospace;
+	background-color: #ffffff;
+	/*white-space: pre;*/
+}
+.csharpcode pre { margin: 0em; }
+.csharpcode .rem { color: #008000; }
+.csharpcode .kwrd { color: #0000ff; }
+.csharpcode .str { color: #006080; }
+.csharpcode .op { color: #0000c0; }
+.csharpcode .preproc { color: #cc6633; }
+.csharpcode .asp { background-color: #ffff00; }
+.csharpcode .html { color: #800000; }
+.csharpcode .attr { color: #ff0000; }
+.csharpcode .alt 
+{
+	background-color: #f4f4f4;
+	width: 100%;
+	margin: 0em;
+}
+.csharpcode .lnum { color: #606060; }</style>
+
+<p>The width value will change for the orientation of the paper, and the top will change based on how many reports you insert. The height is set to a quarter inch because sub-reports auto expand to the content in them. All that is left now is to send the Report the a memory stream and into the renderer.</p><pre class="csharpcode"><span class="kwrd">private</span> Stream CreateMemoryStream(XDocument doc)
+{
+         MemoryStream memStream = <span class="kwrd">new</span> MemoryStream();
+         XmlWriter writer = XmlWriter.Create(memStream);
+         <span class="kwrd">if</span> (writer != <span class="kwrd">null</span>)
+        {
+                doc.Save(writer);
+                writer.Close();
+         }
+         memStream.Position = 0;
+         <span class="kwrd">return</span> memStream;
+} 
+</pre>
+<style type="text/css">.csharpcode, .csharpcode pre
+{
+	font-size: small;
+	color: black;
+	font-family: consolas, &#8220;Courier New&#8221;, courier, monospace;
+	background-color: #ffffff;
+	/*white-space: pre;*/
+}
+.csharpcode pre { margin: 0em; }
+.csharpcode .rem { color: #008000; }
+.csharpcode .kwrd { color: #0000ff; }
+.csharpcode .str { color: #006080; }
+.csharpcode .op { color: #0000c0; }
+.csharpcode .preproc { color: #cc6633; }
+.csharpcode .asp { background-color: #ffff00; }
+.csharpcode .html { color: #800000; }
+.csharpcode .attr { color: #ff0000; }
+.csharpcode .alt 
+{
+	background-color: #f4f4f4;
+	width: 100%;
+	margin: 0em;
+}
+.csharpcode .lnum { color: #606060; }
+</style>
+
+<p>This will package the report file into a memory stream and return it. Make sure you reset the position or the read will start at the end and give an invalid RDLC error. Once packaged you provide the UI to this the same way you would with a static report in an application. The example here is ASP.net.</p>
+<p>That will provide the basis for an ad-hoc report even if your own unique twist on a private report integration.</p>
+<p>&nbsp;</p>
+<p>Happy coding, and remember to code like you have to support it.</p>
+<p>The full code sample looks like this.</p>
+<div class="csharpcode"><pre class="alt"><span class="lnum">   1:  </span><span class="kwrd">private</span> <span class="kwrd">void</span> GenerateReport()</pre><pre><span class="lnum">   2:  </span>{</pre><pre class="alt"><span class="lnum">   3:  </span>            ReportViewer1.LocalReport.LoadReportDefinition(PrepReport());</pre><pre><span class="lnum">   4:  </span>            ReportViewer1.LocalReport.DisplayName = <span class="str">"Set what you want the export file name to be."</span>;</pre><pre class="alt"><span class="lnum">   5:  </span>            ReportViewer1.LocalReport.LoadSubreportDefinition(<span class="str">"SubReport"</span>,</pre><pre><span class="lnum">   6:  </span>                                                              <span class="kwrd">new</span> FileStream(Server.MapPath(<span class="str">"~/Report/Subreport.rdlc"</span>),</pre><pre class="alt"><span class="lnum">   7:  </span>                                                                             FileMode.Open, FileAccess.Read));</pre><pre><span class="lnum">   8:  </span>            ReportViewer1.ReportError += ReportError;</pre><pre class="alt"><span class="lnum">   9:  </span>            ReportViewer1.LocalReport.SubreportProcessing += LocalReport_SubreportProcessing;</pre><pre><span class="lnum">  10:  </span>            ReportViewer1.LocalReport.Refresh();</pre><pre class="alt"><span class="lnum">  11:  </span>            ReportViewer1.ZoomMode = ZoomMode.PageWidth;</pre><pre><span class="lnum">  12:  </span>            ReportViewer1.Focus();</pre><pre class="alt"><span class="lnum">  13:  </span>}</pre><pre><span class="lnum">  14:  </span><span class="kwrd">private</span> <span class="kwrd">void</span> LocalReport_SubreportProcessing(<span class="kwrd">object</span> sender,</pre><pre class="alt"><span class="lnum">  15:  </span>                                                     Microsoft.Reporting.WebForms.SubreportProcessingEventArgs e)</pre><pre><span class="lnum">  16:  </span>{</pre><pre class="alt"><span class="lnum">  17:  </span><span class="rem">//This is where you provide the data sources for you subreports.</span></pre><pre><span class="lnum">  18:  </span>            e.DataSources.Add(<span class="kwrd">new</span> ReportDataSource(<span class="str">"Something"</span>, <span class="str">"MethodCallHere"</span>));</pre><pre class="alt"><span class="lnum">  19:  </span>}</pre><pre><span class="lnum">  20:  </span>&nbsp;</pre><pre class="alt"><span class="lnum">  21:  </span><span class="kwrd">private</span> <span class="kwrd">void</span> ReportError(<span class="kwrd">object</span> sender, Microsoft.Reporting.WebForms.ReportErrorEventArgs e)</pre><pre><span class="lnum">  22:  </span>{</pre><pre class="alt"><span class="lnum">  23:  </span><span class="rem">//Error Handling and Report Logging here</span></pre><pre><span class="lnum">  24:  </span>}</pre><pre class="alt"><span class="lnum">  25:  </span>&nbsp;</pre><pre><span class="lnum">  26:  </span><span class="kwrd">public</span> <span class="kwrd">class</span> _Default : System.Web.UI.Page</pre><pre class="alt"><span class="lnum">  27:  </span>{</pre><pre><span class="lnum">  28:  </span>            <span class="kwrd">protected</span> <span class="kwrd">void</span> Page_Load(<span class="kwrd">object</span> sender, EventArgs e)</pre><pre class="alt"><span class="lnum">  29:  </span>            {</pre><pre><span class="lnum">  30:  </span>            }</pre><pre class="alt"><span class="lnum">  31:  </span>&nbsp;</pre><pre><span class="lnum">  32:  </span>            <span class="kwrd">private</span> Stream Load_FileStream()</pre><pre class="alt"><span class="lnum">  33:  </span>            {</pre><pre><span class="lnum">  34:  </span>                var MasterReport = <span class="kwrd">new</span> FileStream(Server.MapPath(<span class="str">"~/Report/Master.rdlc"</span>), FileMode.Open,                             </pre><pre>                                               FileAccess.Read);</pre><pre class="alt"><span class="lnum">  35:  </span>                <span class="kwrd">return</span> MasterReport;</pre><pre><span class="lnum">  36:  </span>            }</pre><pre class="alt"><span class="lnum">  37:  </span>&nbsp;</pre><pre><span class="lnum">  38:  </span>            <span class="kwrd">private</span> Stream PrepReport()</pre><pre class="alt"><span class="lnum">  39:  </span>            {</pre><pre><span class="lnum">  40:  </span>                XDocument ReportDoc = XDocument.Load(XmlReader.Create(Load_FileStream()));</pre><pre class="alt"><span class="lnum">  41:  </span>                IEnumerable&lt;XNode&gt; hold = ReportDoc.DescendantNodes().InDocumentOrder();</pre><pre><span class="lnum">  42:  </span>                var BodyItems = (XElement) hold.Where(</pre><pre class="alt"><span class="lnum">  43:  </span>                                               n =&gt;</pre><pre><span class="lnum">  44:  </span>                                               n.GetType() != <span class="kwrd">typeof</span> (XText) &amp;&amp;</pre><pre class="alt"><span class="lnum">  45:  </span>                                               ((XElement) n).Parent != <span class="kwrd">null</span> &amp;&amp;</pre><pre><span class="lnum">  46:  </span>                                               ((XElement) n).Name.LocalName.ToUpper() == <span class="str">"REPORTITEMS"</span> &amp;&amp;</pre><pre class="alt"><span class="lnum">  47:  </span>                                               ((XElement) n).Parent.Name.LocalName.ToUpper() == <span class="str">"BODY"</span>).SingleOrDefault</pre><pre><span class="lnum">  48:  </span>                                               ();</pre><pre class="alt"><span class="lnum">  49:  </span>                BodyItems.Add(NewNodes(ReportDoc.Root.Name.Namespace));</pre><pre><span class="lnum">  50:  </span>                <span class="kwrd">return</span> CreateMemoryStream(ReportDoc);</pre><pre class="alt"><span class="lnum">  51:  </span>            }</pre><pre><span class="lnum">  52:  </span>&nbsp;</pre><pre class="alt"><span class="lnum">  53:  </span>            <span class="kwrd">private</span> XElement NewNodes(XNamespace @<span class="kwrd">namespace</span>)</pre><pre><span class="lnum">  54:  </span>            {</pre><pre class="alt"><span class="lnum">  55:  </span>                var holder = <span class="kwrd">new</span> XElement(@<span class="kwrd">namespace</span> + <span class="str">"Subreport"</span>,</pre><pre><span class="lnum">  56:  </span>                                          <span class="kwrd">new</span> <span class="kwrd">object</span>[]</pre><pre class="alt"><span class="lnum">  57:  </span>&nbsp;</pre><pre><span class="lnum">  58:  </span>                                              {</pre><pre class="alt"><span class="lnum">  59:  </span>                                                  <span class="kwrd">new</span> XAttribute(<span class="str">"Name"</span>, <span class="str">"Subreport1"</span>),</pre><pre><span class="lnum">  60:  </span>                                                  <span class="kwrd">new</span> XElement(@<span class="kwrd">namespace</span> + <span class="str">"Parameters"</span>,</pre><pre class="alt"><span class="lnum">  61:  </span>                                                               <span class="kwrd">new</span> XElement(@<span class="kwrd">namespace</span> + <span class="str">"Parameter"</span>,</pre><pre><span class="lnum">  62:  </span>                                                                            <span class="kwrd">new</span> <span class="kwrd">object</span>[]{</pre><pre class="alt"><span class="lnum">  63:  </span>                                                                                    <span class="kwrd">new</span> XElement(@<span class="kwrd">namespace</span> + <span class="str">"Value"</span>,</pre><pre><span class="lnum">  64:  </span>                                                                                                 <span class="str">"=Parameter!Period.Value"</span>)</pre><pre class="alt"><span class="lnum">  65:  </span>                                                                                    , <span class="kwrd">new</span> XAttribute(<span class="str">"Name"</span>, <span class="str">"Period"</span>)</pre><pre><span class="lnum">  66:  </span>                                                                                })),</pre><pre class="alt"><span class="lnum">  67:  </span>                                                  <span class="kwrd">new</span> XElement(@<span class="kwrd">namespace</span> + <span class="str">"ReportName"</span>, <span class="str">"NameHere"</span>),</pre><pre><span class="lnum">  68:  </span>                                                  <span class="kwrd">new</span> XElement(@<span class="kwrd">namespace</span> + <span class="str">"Top"</span>, <span class="str">"0.25in"</span>),</pre><pre class="alt"><span class="lnum">  69:  </span>                                                  <span class="kwrd">new</span> XElement(@<span class="kwrd">namespace</span> + <span class="str">"Width"</span>, <span class="str">"7.25in"</span>),</pre><pre><span class="lnum">  70:  </span>                                                  <span class="kwrd">new</span> XElement(@<span class="kwrd">namespace</span> + <span class="str">"Left"</span>, <span class="str">"0.125in"</span>),</pre><pre class="alt"><span class="lnum">  71:  </span>                                                  <span class="kwrd">new</span> XElement(@<span class="kwrd">namespace</span> + <span class="str">"Height"</span>, <span class="str">"0.25in"</span>)</pre><pre><span class="lnum">  72:  </span>                                              });</pre><pre class="alt"><span class="lnum">  73:  </span>&nbsp;</pre><pre><span class="lnum">  74:  </span>                <span class="kwrd">return</span> holder;</pre><pre class="alt"><span class="lnum">  75:  </span>            }</pre><pre><span class="lnum">  76:  </span>&nbsp;</pre><pre class="alt"><span class="lnum">  77:  </span>            <span class="kwrd">private</span> Stream CreateMemoryStream(XDocument doc)</pre><pre><span class="lnum">  78:  </span>            {</pre><pre class="alt"><span class="lnum">  79:  </span>                var memStream = <span class="kwrd">new</span> MemoryStream();</pre><pre><span class="lnum">  80:  </span>                XmlWriter writer = XmlWriter.Create(memStream);</pre><pre class="alt"><span class="lnum">  81:  </span>                <span class="kwrd">if</span> (writer != <span class="kwrd">null</span>)</pre><pre><span class="lnum">  82:  </span>                {</pre><pre class="alt"><span class="lnum">  83:  </span>                    doc.Save(writer);</pre><pre><span class="lnum">  84:  </span>                    writer.Close();</pre><pre class="alt"><span class="lnum">  85:  </span>                }</pre><pre><span class="lnum">  86:  </span>                memStream.Position = 0;</pre><pre class="alt"><span class="lnum">  87:  </span>                <span class="kwrd">return</span> memStream;</pre><pre><span class="lnum">  88:  </span>            }</pre><pre class="alt"><span class="lnum">  89:  </span>&nbsp;</pre><pre><span class="lnum">  90:  </span>            <span class="kwrd">private</span> <span class="kwrd">void</span> GenerateReport()</pre><pre class="alt"><span class="lnum">  91:  </span>            {</pre><pre><span class="lnum">  92:  </span>                ReportViewer1.LocalReport.LoadReportDefinition(PrepReport());</pre><pre class="alt"><span class="lnum">  93:  </span>                ReportViewer1.LocalReport.DisplayName = <span class="str">"Set what you want the export file name to be."</span>;</pre><pre><span class="lnum">  94:  </span>                ReportViewer1.LocalReport.LoadSubreportDefinition(<span class="str">"SubReport"</span>,</pre><pre class="alt"><span class="lnum">  95:  </span>                                                                  <span class="kwrd">new</span> FileStream(</pre><pre><span class="lnum">  96:  </span>                                                                      Server.MapPath(<span class="str">"~/Report/Subreport.rdlc"</span>),</pre><pre class="alt"><span class="lnum">  97:  </span>                                                                      FileMode.Open, FileAccess.Read));</pre><pre><span class="lnum">  98:  </span>                ReportViewer1.ReportError += ReportError;</pre><pre class="alt"><span class="lnum">  99:  </span>                ReportViewer1.LocalReport.SubreportProcessing += LocalReport_SubreportProcessing;</pre><pre><span class="lnum"> 100:  </span>                ReportViewer1.LocalReport.Refresh();</pre><pre class="alt"><span class="lnum"> 101:  </span>                ReportViewer1.ZoomMode = ZoomMode.PageWidth;</pre><pre><span class="lnum"> 102:  </span>                ReportViewer1.Focus();</pre><pre class="alt"><span class="lnum"> 103:  </span>            }</pre><pre><span class="lnum"> 104:  </span>&nbsp;</pre><pre class="alt"><span class="lnum"> 105:  </span>            <span class="kwrd">private</span> <span class="kwrd">void</span> LocalReport_SubreportProcessing(<span class="kwrd">object</span> sender,</pre><pre><span class="lnum"> 106:  </span>                                                         Microsoft.Reporting.WebForms.SubreportProcessingEventArgs e)</pre><pre class="alt"><span class="lnum"> 107:  </span>            {</pre><pre><span class="lnum"> 108:  </span>                 <span class="rem">//This is where you provide the data sources for you subreports.</span></pre><pre class="alt"><span class="lnum"> 109:  </span>                e.DataSources.Add(<span class="kwrd">new</span> ReportDataSource(<span class="str">"Something"</span>, <span class="str">"MethodCallHere"</span>));</pre><pre><span class="lnum"> 110:  </span>            }</pre><pre class="alt"><span class="lnum"> 111:  </span>&nbsp;</pre><pre><span class="lnum"> 112:  </span>            <span class="kwrd">private</span> <span class="kwrd">void</span> ReportError(<span class="kwrd">object</span> sender, Microsoft.Reporting.WebForms.ReportErrorEventArgs e)</pre><pre class="alt"><span class="lnum"> 113:  </span>            {</pre><pre><span class="lnum"> 114:  </span>                   <span class="rem">//Error Handling and Report Logging here</span></pre><pre class="alt"><span class="lnum"> 115:  </span>            }</pre><pre><span class="lnum"> 116:  </span>}</pre></div>
+<style type="text/css">.csharpcode, .csharpcode pre
+{
+	font-size: small;
+	color: black;
+	font-family: consolas, &#8220;Courier New&#8221;, courier, monospace;
+	background-color: #ffffff;
+	/*white-space: pre;*/
+}
+.csharpcode pre { margin: 0em; }
+.csharpcode .rem { color: #008000; }
+.csharpcode .kwrd { color: #0000ff; }
+.csharpcode .str { color: #006080; }
+.csharpcode .op { color: #0000c0; }
+.csharpcode .preproc { color: #cc6633; }
+.csharpcode .asp { background-color: #ffff00; }
+.csharpcode .html { color: #800000; }
+.csharpcode .attr { color: #ff0000; }
+.csharpcode .alt 
+{
+	background-color: #f4f4f4;
+	width: 100%;
+	margin: 0em;
+}
+.csharpcode .lnum { color: #606060; }
+</style>
+<pre class="csharpcode"></pre>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/Batch-File-and-Command-File-running-in-Visual-Studio/">Batch File and Command File Running in Visual Studio</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-09-09T00:00:00-05:00" pubdate data-updated="true">Sep 9<span>th</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>So I know there are probably places to find this out there but I wanted to throw this out there because I had a hard time finding it.</p>  <p>Batch files are used for a lot of things for deployments and normally you would have to some these from the window explorer instead of in VS. I say why leave VS if you don?t have to?</p>  <p>Go to Tools ? &gt; External Tools</p>  <p><a href="http://blog.devlinliles.com/image.axd?picture=image.png"><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="image" border="0" alt="image" src="http://blog.devlinliles.com/image.axd?picture=image_thumb.png" width="192" height="340" /></a> </p>  <p>This will open a new dialog that you will have some items in or not.</p>  <p><a href="http://blog.devlinliles.com/image.axd?picture=image_1.png"><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="image" border="0" alt="image" src="http://blog.devlinliles.com/image.axd?picture=image_thumb_1.png" width="244" height="239" /></a> </p>  <p>Hit Add and type in the name you want it to appear on your right click menu as, Navigate to or type in the path to cmd.exe, and type /K to the Arguments then with the cursor still in arguments click the arrow to the right and select Item Path. Click the arrow to the right of Initial Directory and select Item Directory. Make sure to click the ?Use Output window? option. Your finished dialog should look something like the above picture. Hit apply and OK. </p>  <p><strong>Remember the count of the new item as it will be needed later. For my example this would be 6.</strong></p>  <p>&#160;</p>  <p>Then to put this on your right click menu. Right click the grey space near a toolbar to get the toolbar customize menu and click customize.</p>  <p><a href="http://blog.devlinliles.com/image.axd?picture=image_2.png"><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="image" border="0" alt="image" src="http://blog.devlinliles.com/image.axd?picture=image_thumb_2.png" width="179" height="306" /></a> </p>  <p>This should open a new dialog like the one below.</p>  <p><a href="http://blog.devlinliles.com/image.axd?picture=image_3.png"><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="image" border="0" alt="image" src="http://blog.devlinliles.com/image.axd?picture=image_thumb_3.png" width="244" height="189" /></a> </p>  <p>&#160;</p>  <p>Click Context Menus. This will add a bar to the toolbar temporarily. Go to the Commands tab on the dialog and scroll down to tools. In the pain to the right select the External Tool with the number that you wrote down / remembered from earlier. For me this was 6.</p>  <p><a href="http://blog.devlinliles.com/image.axd?picture=image_4.png"><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="image" border="0" alt="image" src="http://blog.devlinliles.com/image.axd?picture=image_thumb_4.png" width="244" height="189" /></a> </p>  <p>Click and Drag the External Command you selected to the toolbar that was added. It needs to go under Project and Solution Context Menus, and then under Item. the position under item is just preference on where you want it in the right click menu.</p>  <p><a href="http://blog.devlinliles.com/image.axd?picture=image_5.png"><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="image" border="0" alt="image" src="http://blog.devlinliles.com/image.axd?picture=image_thumb_5.png" width="517" height="233" /></a> </p>  <p>The name will not be External Command #, it will replace that with the name you typed in.</p>  <p>&#160;</p>  <p>Then when you have a batch file you can right click it, and choose your new option and it will run it, but output into the output window of Visual Studio without having to leave the IDE.</p>  <p>&#160;</p>  <p>Enjoy.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/blog/page/6/">&larr; Older</a>
+    
+    <a href="/blog/archives">Blog Archives</a>
+    
+    <a class="next" href="/blog/page/4/">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/How-to-constrain-mocks-for-use-with-Complex-Types/">How to constrain mocks for use with Complex Types</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/AgileDotNet-is-Coming-Are-you-registered/">AgileDotNet is Coming!!! Are you registered?</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Concurrency-and-Locking-in-Entity-Framework/">Concurrency and Locking in Entity Framework</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Tulsa-Tech-Fest-2011/">Tulsa Tech Fest 2011</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Houston-DNUG-Presentation/">Houston DNUG Presentation</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+  
+  <a href="https://github.com/devlinliles">@devlinliles</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'devlinliles',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("devlinliles", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/devlinliles" class="twitter-follow-button" data-show-count="false">Follow @devlinliles</a>
+  
+</section>
+
+
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Devlin Liles -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

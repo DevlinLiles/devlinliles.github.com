@@ -1,0 +1,279 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Dynamic Sort With LINQ - The Devlineator</title>
+  <meta name="author" content="Devlin Liles">
+
+  
+  <meta name="description" content="We have all at one time or another gotten a user request for sorts based on columns. If that is a pre-built control it most likely has this, and if &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://devlinliles.com/blog/Dynamic-Sort-With-LINQ">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="The Devlineator" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">The Devlineator</a></h1>
+  
+    <h2>Random thoughts on .NET Development</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:devlinliles.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Dynamic Sort With LINQ</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-05-13T00:00:00-05:00" pubdate data-updated="true">May 13<span>th</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>We have all at one time or another gotten a user request for sorts based on columns. If that is a pre-built control it most likely has this, and if it is home grown then it will probably need some work. You could write a sort for every column or you could write on that takes the column name in and sorts based on a string. LINQ however doesn’t like this. If you want string based sorting then you must do either a really nasty case statement or use a sort extension like this one.</p>  <p>&#160;</p>  <p>public static class LinqSortExtensions    <br />{     <br />&#160;&#160;&#160; private const string Ascending = &quot;ASC&quot;;</p>  <p>&#160;&#160;&#160; public static IOrderedQueryable&lt;T&gt; OrderBy&lt;T&gt;(this IQueryable&lt;T&gt; source, string property, string dirrection)    <br />&#160;&#160;&#160; {     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; return dirrection == Ascending ? source.OrderBy(property) : source.OrderByDescending(property);     <br />&#160;&#160;&#160; }</p>  <p>&#160;&#160;&#160; public static IOrderedQueryable&lt;T&gt; OrderBy&lt;T&gt;(this IQueryable&lt;T&gt; source, string property)    <br />&#160;&#160;&#160; {     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; return ApplyOrder(source, property, &quot;OrderBy&quot;);     <br />&#160;&#160;&#160; }     <br />&#160;&#160;&#160; public static IOrderedQueryable&lt;T&gt; OrderByDescending&lt;T&gt;(this IQueryable&lt;T&gt; source, string property)     <br />&#160;&#160;&#160; {     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; return ApplyOrder(source, property, &quot;OrderByDescending&quot;);     <br />&#160;&#160;&#160; }     <br />&#160;&#160;&#160; public static IOrderedQueryable&lt;T&gt; ThenBy&lt;T&gt;(this IOrderedQueryable&lt;T&gt; source, string property, string dirrection)     <br />&#160;&#160;&#160; {     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; return dirrection == Ascending ? source.ThenBy(property) : source.ThenByDescending(property);     <br />&#160;&#160;&#160; }     <br />&#160;&#160;&#160; public static IOrderedQueryable&lt;T&gt; ThenBy&lt;T&gt;(this IOrderedQueryable&lt;T&gt; source, string property)     <br />&#160;&#160;&#160; {     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; return ApplyOrder(source, property, &quot;ThenBy&quot;);     <br />&#160;&#160;&#160; }     <br />&#160;&#160;&#160; public static IOrderedQueryable&lt;T&gt; ThenByDescending&lt;T&gt;(this IOrderedQueryable&lt;T&gt; source, string property)     <br />&#160;&#160;&#160; {     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; return ApplyOrder(source, property, &quot;ThenByDescending&quot;);     <br />&#160;&#160;&#160; }     <br />&#160;&#160;&#160; static IOrderedQueryable&lt;T&gt; ApplyOrder&lt;T&gt;(IQueryable&lt;T&gt; source, string property, string methodName)     <br />&#160;&#160;&#160; {     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; var props = property.Split(&#8216;.&#8217;);     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; var type = typeof(T);     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; var arg = Expression.Parameter(type, &quot;x&quot;);     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; Expression expr = arg;     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; foreach (var pi in props.Select(prop =&gt; type.GetProperty(prop)))     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; {     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; expr = Expression.Property(expr, pi);     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; type = pi.PropertyType;     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; }     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; var delegateType = typeof(Func&lt;,&gt;).MakeGenericType(typeof(T), type);     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; var lambda = Expression.Lambda(delegateType, expr, arg);</p>  <p>&#160;&#160;&#160;&#160;&#160;&#160;&#160; var result = typeof(Queryable).GetMethods().Single(    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; method =&gt; method.Name == methodName     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; &amp;&amp; method.IsGenericMethodDefinition     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; &amp;&amp; method.GetGenericArguments().Length == 2     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; &amp;&amp; method.GetParameters().Length == 2)     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; .MakeGenericMethod(typeof(T), type)     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; .Invoke(null, new object[] { source, lambda });     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; return (IOrderedQueryable&lt;T&gt;)result;     <br />&#160;&#160;&#160; }</p>  <p>&#160;</p>  <p>This allows you to pass in a property name and a direction. It allows for multiple sorts, and in case some out there want them, here are the unit tests too..</p>  <p>&#160;</p>  <p>[TestFixture]    <br />&#160;&#160;&#160; public class QueryTests     <br />&#160;&#160;&#160; {</p>  <p>&#160;&#160;&#160;&#160;&#160;&#160;&#160; [Test]    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; public void CanSortWithOnlyStrings()     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; {     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; IQueryable&lt;TestObject&gt; items = new List&lt;TestObject&gt;()     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; {     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; new TestObject(){id = 1, Test = &quot;Test1&quot;},     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; new TestObject(){id = 3, Test = &quot;Test3&quot;},     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; new TestObject(){id = 2, Test = &quot;Test2&quot;},     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; }.AsQueryable();</p>  <p>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; Assert.AreEqual(2, items.OrderBy(&quot;id&quot;, &quot;ASC&quot;).ToArray()[1].id);    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; }</p>  <p>&#160;&#160;&#160;&#160;&#160;&#160;&#160; [Test]    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; public void CanSortDescendingWithOnlyString()     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; {     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; IQueryable&lt;TestObject&gt; items = new List&lt;TestObject&gt;()     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; {     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; new TestObject(){id = 1, Test = &quot;Test1&quot;},     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; new TestObject(){id = 3, Test = &quot;Test3&quot;},     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; new TestObject(){id = 2, Test = &quot;Test2&quot;},     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; }.AsQueryable();</p>  <p>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; Assert.AreEqual(1, items.OrderBy(&quot;id&quot;, &quot;DSC&quot;).ToArray()[2].id);</p>  <p>&#160;&#160;&#160;&#160;&#160;&#160;&#160; }</p>  <p>&#160;&#160;&#160;&#160;&#160;&#160;&#160; [Test]    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; public void CanSortMultipleTimesAscending()     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; {     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; IQueryable&lt;TestObject&gt; items = new List&lt;TestObject&gt;()     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; {     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; new TestObject(){id = 1, Test = &quot;Test1&quot;},     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; new TestObject(){id = 3, Test = &quot;Test3&quot;},     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; new TestObject(){id = 2, Test = &quot;Test3&quot;},     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; new TestObject(){id = 2, Test = &quot;Test2&quot;},     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; new TestObject(){id = 2, Test = &quot;Test1&quot;}     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; }.AsQueryable();     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; var item = items.OrderBy(&quot;id&quot;, &quot;ASC&quot;).ThenBy(&quot;Test&quot;, &quot;ASC&quot;).ToArray()[3];     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; Assert.AreEqual(&quot;Test3&quot;, item.Test);     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; }</p>  <p>&#160;&#160;&#160;&#160;&#160;&#160;&#160; [Test]    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; public void CanSortMultipleTimesWithMultipleDirrections()     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; {     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; IQueryable&lt;TestObject&gt; items = new List&lt;TestObject&gt;()     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; {     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; new TestObject(){id = 1, Test = &quot;Test1&quot;},     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; new TestObject(){id = 3, Test = &quot;Test3&quot;},     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; new TestObject(){id = 2, Test = &quot;Test3&quot;},     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; new TestObject(){id = 2, Test = &quot;Test2&quot;},     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; new TestObject(){id = 2, Test = &quot;Test1&quot;}     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; }.AsQueryable();     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; var item = items.OrderBy(&quot;id&quot;, &quot;ASC&quot;).ThenBy(&quot;Test&quot;, &quot;DSC&quot;).ToArray()[3];     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; Assert.AreEqual(&quot;Test1&quot;, item.Test);</p>  <p>&#160;&#160;&#160;&#160;&#160;&#160;&#160; }    <br />&#160;&#160;&#160; }</p>  <p>&#160;&#160;&#160; public class TestObject    <br />&#160;&#160;&#160; {     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; public int id { get; set; }     <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; public string Test { get; set; }     <br />&#160;&#160;&#160; }</p>  <p>Enjoy</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Devlin Liles</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-05-13T00:00:00-05:00" pubdate data-updated="true">May 13<span>th</span>, 2011</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://devlinliles.com/blog/Dynamic-Sort-With-LINQ/" data-via="devlinliles" data-counturl="http://devlinliles.com/blog/Dynamic-Sort-With-LINQ/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/Dallas-DNUG-Presentatione28093File-New-with-EF-and-POCO-separation/" title="Previous Post: Dallas DNUG Presentation–File New with EF and POCO separation">&laquo; Dallas DNUG Presentation–File New with EF and POCO separation</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/Dallas-Tech-Fest-2011e28093Call-for-Speakers-Open/" title="Next Post: Dallas Tech Fest 2011–Call for Speakers Open">Dallas Tech Fest 2011–Call for Speakers Open &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/How-to-constrain-mocks-for-use-with-Complex-Types/">How to constrain mocks for use with Complex Types</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/AgileDotNet-is-Coming-Are-you-registered/">AgileDotNet is Coming!!! Are you registered?</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Concurrency-and-Locking-in-Entity-Framework/">Concurrency and Locking in Entity Framework</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Tulsa-Tech-Fest-2011/">Tulsa Tech Fest 2011</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Houston-DNUG-Presentation/">Houston DNUG Presentation</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/devlinliles">@devlinliles</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'devlinliles',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("devlinliles", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/devlinliles" class="twitter-follow-button" data-show-count="false">Follow @devlinliles</a>
+  
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Devlin Liles -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,478 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>SQL Server Reporting Services ? Ad Hoc integrated with ASP.NET - The Devlineator</title>
+  <meta name="author" content="Devlin Liles">
+
+  
+  <meta name="description" content="So I ran into a couple of different issues when setting up advanced reporting scenarios with reporting services. While reporting services runs fairly &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://devlinliles.com/blog/SQL-Server-Reporting-Services-Ad-Hoc-integrated-with-ASPNET">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="The Devlineator" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">The Devlineator</a></h1>
+  
+    <h2>Random thoughts on .NET Development</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:devlinliles.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">SQL Server Reporting Services ? Ad Hoc Integrated With ASP.NET</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-09-09T00:00:00-05:00" pubdate data-updated="true">Sep 9<span>th</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>So I ran into a couple of different issues when setting up advanced reporting scenarios with reporting services. While reporting services runs fairly well in the server report situations but lacks flexibility in application integration scenarios. Having to hard code datasets for each report and hard code fill and get methods seemed to lack flair to me. I wanted a more robust and elegant solution. So I came up with an idea that allowed me to take preset report segments and load them dynamically into a report definition before passing it to the renderer. </p> <p>You start by setting up a blank RDLC with header and footer. This allows you to keep formatting the same through the report. You can use global variables or parameters in the header and the footers. Most of the time this will be standard for the application and template for the company.</p> <p><img src="http://devlinliles.com/ImageHandler.ashx?schemaName=Blog&amp;id=6479be44-e6d9-46a2-84cd-2ac9b3f5db59"></p> <p>You load the RDLC from a file stream into a XDocument. </p><pre class="csharpcode"><span class="kwrd">private</span> Stream Load_FileStream()
+
+{
+
+Stream MasterReport =  
+<span class="kwrd">new</span> FileStream(Server.MapPath(<span class="str">"~/Report/Master.rdlc"</span>),FileMode.Open,FileAccess.Read);
+
+<span class="kwrd">return</span> MasterReport;
+
+}</pre>
+<style type="text/css">
+
+
+.csharpcode, .csharpcode pre
+{
+	font-size: small;
+	color: black;
+	font-family: consolas, &#8220;Courier New&#8221;, courier, monospace;
+	background-color: #ffffff;
+	/*white-space: pre;*/
+}
+.csharpcode pre { margin: 0em; }
+.csharpcode .rem { color: #008000; }
+.csharpcode .kwrd { color: #0000ff; }
+.csharpcode .str { color: #006080; }
+.csharpcode .op { color: #0000c0; }
+.csharpcode .preproc { color: #cc6633; }
+.csharpcode .asp { background-color: #ffff00; }
+.csharpcode .html { color: #800000; }
+.csharpcode .attr { color: #ff0000; }
+.csharpcode .alt 
+{
+	background-color: #f4f4f4;
+	width: 100%;
+	margin: 0em;
+}
+.csharpcode .lnum { color: #606060; }</style>
+
+<p>Using LINQ you can search the nodes for the report items node in the body. This is where the guts of the report is stored.</p><pre class="csharpcode"><span class="kwrd">private</span> Stream PrepReport()
+
+{
+XDocument ReportDoc = XDocument.Load(XmlReader.Create(Load_FileStream()));
+IEnumerable&lt;XNode&gt; hold = ReportDoc.DescendantNodes().InDocumentOrder();
+XElement BodyItems = 
+(XElement) hold.Where(n =&gt;
+                           n.GetType() != <span class="kwrd">typeof</span> (XText) &amp;&amp; 
+                           ((XElement) n).Parent != <span class="kwrd">null</span> &amp;&amp;
+                           ((XElement) n).Name.LocalName.ToUpper() == <span class="str">"REPORTITEMS"</span> &amp;&amp;
+                           ((XElement) n).Parent.Name.LocalName.ToUpper() == <span class="str">"BODY"</span>).SingleOrDefault();
+            BodyItems.Add(NewNodes(ReportDoc.Root.Name.Namespace));
+<span class="kwrd">return</span> CreateMemoryStream(ReportDoc);
+}</pre>
+<style type="text/css">
+
+
+.csharpcode, .csharpcode pre
+{
+	font-size: small;
+	color: black;
+	font-family: consolas, &#8220;Courier New&#8221;, courier, monospace;
+	background-color: #ffffff;
+	/*white-space: pre;*/
+}
+.csharpcode pre { margin: 0em; }
+.csharpcode .rem { color: #008000; }
+.csharpcode .kwrd { color: #0000ff; }
+.csharpcode .str { color: #006080; }
+.csharpcode .op { color: #0000c0; }
+.csharpcode .preproc { color: #cc6633; }
+.csharpcode .asp { background-color: #ffff00; }
+.csharpcode .html { color: #800000; }
+.csharpcode .attr { color: #ff0000; }
+.csharpcode .alt 
+{
+	background-color: #f4f4f4;
+	width: 100%;
+	margin: 0em;
+}
+.csharpcode .lnum { color: #606060; }</style>
+
+<p>You can then use LINQ to XML to insert a new node package to add tables, sub-reports, or graphs. In this example I add a sub-report with a parameter passed to it.</p>
+<p>&nbsp;</p><pre class="csharpcode"><span class="kwrd">private</span> XElement NewNodes(XNamespace @<span class="kwrd">namespace</span>)
+
+{
+    var holder = <span class="kwrd">new</span> XElement(@<span class="kwrd">namespace</span> + <span class="str">"Subreport"</span>,
+     <span class="kwrd">new</span> <span class="kwrd">object</span>[] {
+     <span class="kwrd">new</span> XAttribute(<span class="str">"Name"</span>, <span class="str">"Subreport1"</span>),
+     <span class="kwrd">new</span> XElement(@<span class="kwrd">namespace</span> + <span class="str">"Parameters"</span>,
+     <span class="kwrd">new</span> XElement(@<span class="kwrd">namespace</span> + <span class="str">"Parameter"</span>,
+     <span class="kwrd">new</span> <span class="kwrd">object</span>[]{
+          <span class="kwrd">new</span> XElement(@<span class="kwrd">namespace</span> + <span class="str">"Value"</span>,<span class="str">"=Parameter!Period.Value"</span>),
+          <span class="kwrd">new</span> XAttribute(<span class="str">"Name"</span>, <span class="str">"Period"</span>)
+ })),
+<span class="kwrd">new</span> XElement(@<span class="kwrd">namespace</span> + <span class="str">"ReportName"</span>, <span class="str">"NameHere"</span>),
+<span class="kwrd">new</span> XElement(@<span class="kwrd">namespace</span> + <span class="str">"Top"</span>, <span class="str">"0.25in"</span>),
+<span class="kwrd">new</span> XElement(@<span class="kwrd">namespace</span> + <span class="str">"Width"</span>, <span class="str">"7.25in"</span>),
+<span class="kwrd">new</span> XElement(@<span class="kwrd">namespace</span> + <span class="str">"Left"</span>, <span class="str">"0.125in"</span>),
+<span class="kwrd">new</span> XElement(@<span class="kwrd">namespace</span> + <span class="str">"Height"</span>, <span class="str">"0.25in"</span>)
+ });
+<span class="kwrd">return</span> holder;
+}</pre>
+<style type="text/css">
+
+
+.csharpcode, .csharpcode pre
+{
+	font-size: small;
+	color: black;
+	font-family: consolas, &#8220;Courier New&#8221;, courier, monospace;
+	background-color: #ffffff;
+	/*white-space: pre;*/
+}
+.csharpcode pre { margin: 0em; }
+.csharpcode .rem { color: #008000; }
+.csharpcode .kwrd { color: #0000ff; }
+.csharpcode .str { color: #006080; }
+.csharpcode .op { color: #0000c0; }
+.csharpcode .preproc { color: #cc6633; }
+.csharpcode .asp { background-color: #ffff00; }
+.csharpcode .html { color: #800000; }
+.csharpcode .attr { color: #ff0000; }
+.csharpcode .alt 
+{
+	background-color: #f4f4f4;
+	width: 100%;
+	margin: 0em;
+}
+.csharpcode .lnum { color: #606060; }</style>
+
+<p>The width value will change for the orientation of the paper, and the top will change based on how many reports you insert. The height is set to a quarter inch because sub-reports auto expand to the content in them. All that is left now is to send the Report the a memory stream and into the renderer.</p><pre class="csharpcode"><span class="kwrd">private</span> Stream CreateMemoryStream(XDocument doc)
+{
+         MemoryStream memStream = <span class="kwrd">new</span> MemoryStream();
+         XmlWriter writer = XmlWriter.Create(memStream);
+         <span class="kwrd">if</span> (writer != <span class="kwrd">null</span>)
+        {
+                doc.Save(writer);
+                writer.Close();
+         }
+         memStream.Position = 0;
+         <span class="kwrd">return</span> memStream;
+} 
+</pre>
+<style type="text/css">.csharpcode, .csharpcode pre
+{
+	font-size: small;
+	color: black;
+	font-family: consolas, &#8220;Courier New&#8221;, courier, monospace;
+	background-color: #ffffff;
+	/*white-space: pre;*/
+}
+.csharpcode pre { margin: 0em; }
+.csharpcode .rem { color: #008000; }
+.csharpcode .kwrd { color: #0000ff; }
+.csharpcode .str { color: #006080; }
+.csharpcode .op { color: #0000c0; }
+.csharpcode .preproc { color: #cc6633; }
+.csharpcode .asp { background-color: #ffff00; }
+.csharpcode .html { color: #800000; }
+.csharpcode .attr { color: #ff0000; }
+.csharpcode .alt 
+{
+	background-color: #f4f4f4;
+	width: 100%;
+	margin: 0em;
+}
+.csharpcode .lnum { color: #606060; }
+</style>
+
+<p>This will package the report file into a memory stream and return it. Make sure you reset the position or the read will start at the end and give an invalid RDLC error. Once packaged you provide the UI to this the same way you would with a static report in an application. The example here is ASP.net.</p>
+<p>That will provide the basis for an ad-hoc report even if your own unique twist on a private report integration.</p>
+<p>&nbsp;</p>
+<p>Happy coding, and remember to code like you have to support it.</p>
+<p>The full code sample looks like this.</p>
+<div class="csharpcode"><pre class="alt"><span class="lnum">   1:  </span><span class="kwrd">private</span> <span class="kwrd">void</span> GenerateReport()</pre><pre><span class="lnum">   2:  </span>{</pre><pre class="alt"><span class="lnum">   3:  </span>            ReportViewer1.LocalReport.LoadReportDefinition(PrepReport());</pre><pre><span class="lnum">   4:  </span>            ReportViewer1.LocalReport.DisplayName = <span class="str">"Set what you want the export file name to be."</span>;</pre><pre class="alt"><span class="lnum">   5:  </span>            ReportViewer1.LocalReport.LoadSubreportDefinition(<span class="str">"SubReport"</span>,</pre><pre><span class="lnum">   6:  </span>                                                              <span class="kwrd">new</span> FileStream(Server.MapPath(<span class="str">"~/Report/Subreport.rdlc"</span>),</pre><pre class="alt"><span class="lnum">   7:  </span>                                                                             FileMode.Open, FileAccess.Read));</pre><pre><span class="lnum">   8:  </span>            ReportViewer1.ReportError += ReportError;</pre><pre class="alt"><span class="lnum">   9:  </span>            ReportViewer1.LocalReport.SubreportProcessing += LocalReport_SubreportProcessing;</pre><pre><span class="lnum">  10:  </span>            ReportViewer1.LocalReport.Refresh();</pre><pre class="alt"><span class="lnum">  11:  </span>            ReportViewer1.ZoomMode = ZoomMode.PageWidth;</pre><pre><span class="lnum">  12:  </span>            ReportViewer1.Focus();</pre><pre class="alt"><span class="lnum">  13:  </span>}</pre><pre><span class="lnum">  14:  </span><span class="kwrd">private</span> <span class="kwrd">void</span> LocalReport_SubreportProcessing(<span class="kwrd">object</span> sender,</pre><pre class="alt"><span class="lnum">  15:  </span>                                                     Microsoft.Reporting.WebForms.SubreportProcessingEventArgs e)</pre><pre><span class="lnum">  16:  </span>{</pre><pre class="alt"><span class="lnum">  17:  </span><span class="rem">//This is where you provide the data sources for you subreports.</span></pre><pre><span class="lnum">  18:  </span>            e.DataSources.Add(<span class="kwrd">new</span> ReportDataSource(<span class="str">"Something"</span>, <span class="str">"MethodCallHere"</span>));</pre><pre class="alt"><span class="lnum">  19:  </span>}</pre><pre><span class="lnum">  20:  </span>&nbsp;</pre><pre class="alt"><span class="lnum">  21:  </span><span class="kwrd">private</span> <span class="kwrd">void</span> ReportError(<span class="kwrd">object</span> sender, Microsoft.Reporting.WebForms.ReportErrorEventArgs e)</pre><pre><span class="lnum">  22:  </span>{</pre><pre class="alt"><span class="lnum">  23:  </span><span class="rem">//Error Handling and Report Logging here</span></pre><pre><span class="lnum">  24:  </span>}</pre><pre class="alt"><span class="lnum">  25:  </span>&nbsp;</pre><pre><span class="lnum">  26:  </span><span class="kwrd">public</span> <span class="kwrd">class</span> _Default : System.Web.UI.Page</pre><pre class="alt"><span class="lnum">  27:  </span>{</pre><pre><span class="lnum">  28:  </span>            <span class="kwrd">protected</span> <span class="kwrd">void</span> Page_Load(<span class="kwrd">object</span> sender, EventArgs e)</pre><pre class="alt"><span class="lnum">  29:  </span>            {</pre><pre><span class="lnum">  30:  </span>            }</pre><pre class="alt"><span class="lnum">  31:  </span>&nbsp;</pre><pre><span class="lnum">  32:  </span>            <span class="kwrd">private</span> Stream Load_FileStream()</pre><pre class="alt"><span class="lnum">  33:  </span>            {</pre><pre><span class="lnum">  34:  </span>                var MasterReport = <span class="kwrd">new</span> FileStream(Server.MapPath(<span class="str">"~/Report/Master.rdlc"</span>), FileMode.Open,                             </pre><pre>                                               FileAccess.Read);</pre><pre class="alt"><span class="lnum">  35:  </span>                <span class="kwrd">return</span> MasterReport;</pre><pre><span class="lnum">  36:  </span>            }</pre><pre class="alt"><span class="lnum">  37:  </span>&nbsp;</pre><pre><span class="lnum">  38:  </span>            <span class="kwrd">private</span> Stream PrepReport()</pre><pre class="alt"><span class="lnum">  39:  </span>            {</pre><pre><span class="lnum">  40:  </span>                XDocument ReportDoc = XDocument.Load(XmlReader.Create(Load_FileStream()));</pre><pre class="alt"><span class="lnum">  41:  </span>                IEnumerable&lt;XNode&gt; hold = ReportDoc.DescendantNodes().InDocumentOrder();</pre><pre><span class="lnum">  42:  </span>                var BodyItems = (XElement) hold.Where(</pre><pre class="alt"><span class="lnum">  43:  </span>                                               n =&gt;</pre><pre><span class="lnum">  44:  </span>                                               n.GetType() != <span class="kwrd">typeof</span> (XText) &amp;&amp;</pre><pre class="alt"><span class="lnum">  45:  </span>                                               ((XElement) n).Parent != <span class="kwrd">null</span> &amp;&amp;</pre><pre><span class="lnum">  46:  </span>                                               ((XElement) n).Name.LocalName.ToUpper() == <span class="str">"REPORTITEMS"</span> &amp;&amp;</pre><pre class="alt"><span class="lnum">  47:  </span>                                               ((XElement) n).Parent.Name.LocalName.ToUpper() == <span class="str">"BODY"</span>).SingleOrDefault</pre><pre><span class="lnum">  48:  </span>                                               ();</pre><pre class="alt"><span class="lnum">  49:  </span>                BodyItems.Add(NewNodes(ReportDoc.Root.Name.Namespace));</pre><pre><span class="lnum">  50:  </span>                <span class="kwrd">return</span> CreateMemoryStream(ReportDoc);</pre><pre class="alt"><span class="lnum">  51:  </span>            }</pre><pre><span class="lnum">  52:  </span>&nbsp;</pre><pre class="alt"><span class="lnum">  53:  </span>            <span class="kwrd">private</span> XElement NewNodes(XNamespace @<span class="kwrd">namespace</span>)</pre><pre><span class="lnum">  54:  </span>            {</pre><pre class="alt"><span class="lnum">  55:  </span>                var holder = <span class="kwrd">new</span> XElement(@<span class="kwrd">namespace</span> + <span class="str">"Subreport"</span>,</pre><pre><span class="lnum">  56:  </span>                                          <span class="kwrd">new</span> <span class="kwrd">object</span>[]</pre><pre class="alt"><span class="lnum">  57:  </span>&nbsp;</pre><pre><span class="lnum">  58:  </span>                                              {</pre><pre class="alt"><span class="lnum">  59:  </span>                                                  <span class="kwrd">new</span> XAttribute(<span class="str">"Name"</span>, <span class="str">"Subreport1"</span>),</pre><pre><span class="lnum">  60:  </span>                                                  <span class="kwrd">new</span> XElement(@<span class="kwrd">namespace</span> + <span class="str">"Parameters"</span>,</pre><pre class="alt"><span class="lnum">  61:  </span>                                                               <span class="kwrd">new</span> XElement(@<span class="kwrd">namespace</span> + <span class="str">"Parameter"</span>,</pre><pre><span class="lnum">  62:  </span>                                                                            <span class="kwrd">new</span> <span class="kwrd">object</span>[]{</pre><pre class="alt"><span class="lnum">  63:  </span>                                                                                    <span class="kwrd">new</span> XElement(@<span class="kwrd">namespace</span> + <span class="str">"Value"</span>,</pre><pre><span class="lnum">  64:  </span>                                                                                                 <span class="str">"=Parameter!Period.Value"</span>)</pre><pre class="alt"><span class="lnum">  65:  </span>                                                                                    , <span class="kwrd">new</span> XAttribute(<span class="str">"Name"</span>, <span class="str">"Period"</span>)</pre><pre><span class="lnum">  66:  </span>                                                                                })),</pre><pre class="alt"><span class="lnum">  67:  </span>                                                  <span class="kwrd">new</span> XElement(@<span class="kwrd">namespace</span> + <span class="str">"ReportName"</span>, <span class="str">"NameHere"</span>),</pre><pre><span class="lnum">  68:  </span>                                                  <span class="kwrd">new</span> XElement(@<span class="kwrd">namespace</span> + <span class="str">"Top"</span>, <span class="str">"0.25in"</span>),</pre><pre class="alt"><span class="lnum">  69:  </span>                                                  <span class="kwrd">new</span> XElement(@<span class="kwrd">namespace</span> + <span class="str">"Width"</span>, <span class="str">"7.25in"</span>),</pre><pre><span class="lnum">  70:  </span>                                                  <span class="kwrd">new</span> XElement(@<span class="kwrd">namespace</span> + <span class="str">"Left"</span>, <span class="str">"0.125in"</span>),</pre><pre class="alt"><span class="lnum">  71:  </span>                                                  <span class="kwrd">new</span> XElement(@<span class="kwrd">namespace</span> + <span class="str">"Height"</span>, <span class="str">"0.25in"</span>)</pre><pre><span class="lnum">  72:  </span>                                              });</pre><pre class="alt"><span class="lnum">  73:  </span>&nbsp;</pre><pre><span class="lnum">  74:  </span>                <span class="kwrd">return</span> holder;</pre><pre class="alt"><span class="lnum">  75:  </span>            }</pre><pre><span class="lnum">  76:  </span>&nbsp;</pre><pre class="alt"><span class="lnum">  77:  </span>            <span class="kwrd">private</span> Stream CreateMemoryStream(XDocument doc)</pre><pre><span class="lnum">  78:  </span>            {</pre><pre class="alt"><span class="lnum">  79:  </span>                var memStream = <span class="kwrd">new</span> MemoryStream();</pre><pre><span class="lnum">  80:  </span>                XmlWriter writer = XmlWriter.Create(memStream);</pre><pre class="alt"><span class="lnum">  81:  </span>                <span class="kwrd">if</span> (writer != <span class="kwrd">null</span>)</pre><pre><span class="lnum">  82:  </span>                {</pre><pre class="alt"><span class="lnum">  83:  </span>                    doc.Save(writer);</pre><pre><span class="lnum">  84:  </span>                    writer.Close();</pre><pre class="alt"><span class="lnum">  85:  </span>                }</pre><pre><span class="lnum">  86:  </span>                memStream.Position = 0;</pre><pre class="alt"><span class="lnum">  87:  </span>                <span class="kwrd">return</span> memStream;</pre><pre><span class="lnum">  88:  </span>            }</pre><pre class="alt"><span class="lnum">  89:  </span>&nbsp;</pre><pre><span class="lnum">  90:  </span>            <span class="kwrd">private</span> <span class="kwrd">void</span> GenerateReport()</pre><pre class="alt"><span class="lnum">  91:  </span>            {</pre><pre><span class="lnum">  92:  </span>                ReportViewer1.LocalReport.LoadReportDefinition(PrepReport());</pre><pre class="alt"><span class="lnum">  93:  </span>                ReportViewer1.LocalReport.DisplayName = <span class="str">"Set what you want the export file name to be."</span>;</pre><pre><span class="lnum">  94:  </span>                ReportViewer1.LocalReport.LoadSubreportDefinition(<span class="str">"SubReport"</span>,</pre><pre class="alt"><span class="lnum">  95:  </span>                                                                  <span class="kwrd">new</span> FileStream(</pre><pre><span class="lnum">  96:  </span>                                                                      Server.MapPath(<span class="str">"~/Report/Subreport.rdlc"</span>),</pre><pre class="alt"><span class="lnum">  97:  </span>                                                                      FileMode.Open, FileAccess.Read));</pre><pre><span class="lnum">  98:  </span>                ReportViewer1.ReportError += ReportError;</pre><pre class="alt"><span class="lnum">  99:  </span>                ReportViewer1.LocalReport.SubreportProcessing += LocalReport_SubreportProcessing;</pre><pre><span class="lnum"> 100:  </span>                ReportViewer1.LocalReport.Refresh();</pre><pre class="alt"><span class="lnum"> 101:  </span>                ReportViewer1.ZoomMode = ZoomMode.PageWidth;</pre><pre><span class="lnum"> 102:  </span>                ReportViewer1.Focus();</pre><pre class="alt"><span class="lnum"> 103:  </span>            }</pre><pre><span class="lnum"> 104:  </span>&nbsp;</pre><pre class="alt"><span class="lnum"> 105:  </span>            <span class="kwrd">private</span> <span class="kwrd">void</span> LocalReport_SubreportProcessing(<span class="kwrd">object</span> sender,</pre><pre><span class="lnum"> 106:  </span>                                                         Microsoft.Reporting.WebForms.SubreportProcessingEventArgs e)</pre><pre class="alt"><span class="lnum"> 107:  </span>            {</pre><pre><span class="lnum"> 108:  </span>                 <span class="rem">//This is where you provide the data sources for you subreports.</span></pre><pre class="alt"><span class="lnum"> 109:  </span>                e.DataSources.Add(<span class="kwrd">new</span> ReportDataSource(<span class="str">"Something"</span>, <span class="str">"MethodCallHere"</span>));</pre><pre><span class="lnum"> 110:  </span>            }</pre><pre class="alt"><span class="lnum"> 111:  </span>&nbsp;</pre><pre><span class="lnum"> 112:  </span>            <span class="kwrd">private</span> <span class="kwrd">void</span> ReportError(<span class="kwrd">object</span> sender, Microsoft.Reporting.WebForms.ReportErrorEventArgs e)</pre><pre class="alt"><span class="lnum"> 113:  </span>            {</pre><pre><span class="lnum"> 114:  </span>                   <span class="rem">//Error Handling and Report Logging here</span></pre><pre class="alt"><span class="lnum"> 115:  </span>            }</pre><pre><span class="lnum"> 116:  </span>}</pre></div>
+<style type="text/css">.csharpcode, .csharpcode pre
+{
+	font-size: small;
+	color: black;
+	font-family: consolas, &#8220;Courier New&#8221;, courier, monospace;
+	background-color: #ffffff;
+	/*white-space: pre;*/
+}
+.csharpcode pre { margin: 0em; }
+.csharpcode .rem { color: #008000; }
+.csharpcode .kwrd { color: #0000ff; }
+.csharpcode .str { color: #006080; }
+.csharpcode .op { color: #0000c0; }
+.csharpcode .preproc { color: #cc6633; }
+.csharpcode .asp { background-color: #ffff00; }
+.csharpcode .html { color: #800000; }
+.csharpcode .attr { color: #ff0000; }
+.csharpcode .alt 
+{
+	background-color: #f4f4f4;
+	width: 100%;
+	margin: 0em;
+}
+.csharpcode .lnum { color: #606060; }
+</style>
+<pre class="csharpcode"></pre>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Devlin Liles</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-09-09T00:00:00-05:00" pubdate data-updated="true">Sep 9<span>th</span>, 2009</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://devlinliles.com/blog/SQL-Server-Reporting-Services-Ad-Hoc-integrated-with-ASPNET/" data-via="devlinliles" data-counturl="http://devlinliles.com/blog/SQL-Server-Reporting-Services-Ad-Hoc-integrated-with-ASPNET/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/Batch-File-and-Command-File-running-in-Visual-Studio/" title="Previous Post: Batch File and Command File running in Visual Studio">&laquo; Batch File and Command File running in Visual Studio</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/Test-Driven-Development-Not-for-the-faint-of-heart/" title="Next Post: Test Driven Development ? Not for the faint of heart.">Test Driven Development ? Not for the faint of heart. &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/How-to-constrain-mocks-for-use-with-Complex-Types/">How to constrain mocks for use with Complex Types</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/AgileDotNet-is-Coming-Are-you-registered/">AgileDotNet is Coming!!! Are you registered?</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Concurrency-and-Locking-in-Entity-Framework/">Concurrency and Locking in Entity Framework</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Tulsa-Tech-Fest-2011/">Tulsa Tech Fest 2011</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Houston-DNUG-Presentation/">Houston DNUG Presentation</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/devlinliles">@devlinliles</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'devlinliles',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("devlinliles", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/devlinliles" class="twitter-follow-button" data-show-count="false">Follow @devlinliles</a>
+  
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Devlin Liles -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

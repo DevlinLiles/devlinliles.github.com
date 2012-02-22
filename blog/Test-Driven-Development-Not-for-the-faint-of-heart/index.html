@@ -1,0 +1,279 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Test Driven Development ? Not for the faint of heart. - The Devlineator</title>
+  <meta name="author" content="Devlin Liles">
+
+  
+  <meta name="description" content="I started coding in C# about a year ago and almost immediately found that once I had completed a project I wanted to go back and streamline and &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://devlinliles.com/blog/Test-Driven-Development-Not-for-the-faint-of-heart">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="The Devlineator" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">The Devlineator</a></h1>
+  
+    <h2>Random thoughts on .NET Development</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:devlinliles.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Test Driven Development ? Not for the Faint of Heart.</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-09-09T00:00:00-05:00" pubdate data-updated="true">Sep 9<span>th</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>I started coding in C# about a year ago and almost immediately found that once I had completed a project I wanted to go back and streamline and improve it. When time allowed I started trying to do this and found that the code was very hard to verify functionality. I also found that some of my design choices were pretty novice, due to that the code was very hard to enhance.&#160; <br />I got introduced to the idea of test driven development by a good friend Rob Tennyson. He presented on the topic at the Tyson Foods internal .NET user group. This peaked my interest for two reasons. One, It would allow for avoiding the novice mistakes in design and class layout. Two, it would allow for my code to have automated verification of functionality.     <br />I set out to work TDD into my everyday process and hit several brick walls.     <br />1. You end up making things public for testing that should not be otherwise, or putting test code into the finished product (neither is a workable solution in my book). I am using NUnit and I didn&#8217;t want to have a reference to a testing package in my production code. Adding a dependency to the production code that other developers will have to deal with was not my idea of a stable codebase.     <br />2. Being a beginner in TDD as well as C# I didn&#8217;t know what I didn&#8217;t know so by that lack of code and language knowledge I repeated some novice mistakes in design. Not as many as before but still a few. Some would argue that I gained knowledge and that is why I see those bottlenecks and design issues more clearly and to that my only reply is &quot;yeah prolly&quot;.     <br />3. Abstraction is a premium but sometimes too much work. I write a lot of small applications, an editor here, a website there. While I do work to abstract a lot of my code and provide interfaces in the right places for a small application putting in the level of seams needed for proper TDD would be building an elevator in an outhouse.     <br />4. I found it increasingly difficult to find answers in my hunt for TDD utopia. I read several books on the subject and found that I was more often than not provided with contradictory rules to apply, or methods to use. Microsoft&#8217;s &quot;Test-Driven Development in Microsoft .NET&quot; by James W. Newkirk and Alexei A. Vorontsov gave great baseline examples and presented the basics of TDD very well, however it fails to provide good solid base for TDD in the real world. The application that they base a lot of their examples around ignores some fairly large aspects of the TDD mindset like separation of integration testing and design testing.</p>  <p>With the miles behind me and a TDD utopia still nowhere in sight I have found several good ideas. </p>  <p>1. Kent Beck&#8217;s TDD by Example is a great resource for TDD on the intermediate to advanced level.</p>  <p>2. Not everything needs to be designed using TDD, some things are just too trivial.</p>  <p>3. TDD is a design pattern, and it should be used as such. If you want automated testing use automated tests, but if you want TDD programs before one line of code is written have a test list and priority assigned to them.</p>  <p>I am working on a TDD project currently with Jay Smith and Rob Tennyson to write a checkers application using only TDD and having no UI or Data Layer. Building Logic first, then the UI, and finally adding a data layer to detail how to handle those real world integration concerns.</p>  <p>Just Remember Code like you have to support it.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Devlin Liles</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-09-09T00:00:00-05:00" pubdate data-updated="true">Sep 9<span>th</span>, 2009</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://devlinliles.com/blog/Test-Driven-Development-Not-for-the-faint-of-heart/" data-via="devlinliles" data-counturl="http://devlinliles.com/blog/Test-Driven-Development-Not-for-the-faint-of-heart/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/SQL-Server-Reporting-Services-Ad-Hoc-integrated-with-ASPNET/" title="Previous Post: SQL Server Reporting Services ? Ad Hoc integrated with ASP.NET">&laquo; SQL Server Reporting Services ? Ad Hoc integrated with ASP.NET</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/Tyson-Development-Conference-09-Setup/" title="Next Post: Tyson Development Conference 09 - Setup">Tyson Development Conference 09 - Setup &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/How-to-constrain-mocks-for-use-with-Complex-Types/">How to constrain mocks for use with Complex Types</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/AgileDotNet-is-Coming-Are-you-registered/">AgileDotNet is Coming!!! Are you registered?</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Concurrency-and-Locking-in-Entity-Framework/">Concurrency and Locking in Entity Framework</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Tulsa-Tech-Fest-2011/">Tulsa Tech Fest 2011</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Houston-DNUG-Presentation/">Houston DNUG Presentation</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/devlinliles">@devlinliles</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'devlinliles',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("devlinliles", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/devlinliles" class="twitter-follow-button" data-show-count="false">Follow @devlinliles</a>
+  
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Devlin Liles -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

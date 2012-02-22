@@ -1,0 +1,358 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Comments versus Well written code - The Devlineator</title>
+  <meta name="author" content="Devlin Liles">
+
+  
+  <meta name="description" content="So the conversation started today about a guy leaving our team and needing to knowledge transfer his part of the code base to the other team members &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://devlinliles.com/blog/Comments-versus-Well-written-code">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="The Devlineator" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">The Devlineator</a></h1>
+  
+    <h2>Random thoughts on .NET Development</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:devlinliles.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Comments Versus Well Written Code</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-09-15T00:00:00-05:00" pubdate data-updated="true">Sep 15<span>th</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>So the conversation started today about a guy leaving our team and needing to knowledge transfer his part of the code base to the other team members. The lead programmer on the project told him to stop working on new development and start commenting his code so that the people coming in after him would understand what he had been doing.</p>
+<p>Personally the first thing I do when opening a code base that I am not familiar with is to press CTRL-M, CTRL-O and start looking around. ( CTRL-M, CTRL-O is the default visual studio short cut for minimize all outlining. You get to see method declarations, and that is about it.) This will collapse blocks of comments so that they are not intrusive. I never re-expand them. The idea that you need comments for understanding code to me is a big red flag for bad code. I feel well named variables are much more intuitive to learning a new code base than using comments.</p>
+<p>I have never sat down to learn an entire code base at one sitting. I am normally working on a small part or a bug fix and need to find something that is very specific. To that end a well named class/method/property is much more helpful with you use the ?Edit-&gt;Find? code parser than having to sort through and search all the comments for the set of information that you need.</p>
+<p>Also, I am sure that almost everyone has opened a piece of code that had a form1, or class1 class right? Those names that MS graces us with are not supposed to stay named that. Here is the way you avoid this.</p>
+<p>Step 1: Go to add class</p>
+<p>Step 2: DON?T CLICK OK!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!</p>
+<p>Step 3: Look down at the bottom of the dialog and type in something intuitive.</p>
+<p><a href="http://blog.devlinliles.com/image.axd?picture=image_6.png"><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="image" src="http://blog.devlinliles.com/image.axd?picture=image_thumb_6.png" border="0" alt="image" width="394" height="238" /></a></p>
+<p>Step 4: Go drink something with an umbrella and retire to the happy place of understandable class name land.</p>
+<p>To prove my point.</p>
+<div class="csharpcode">
+<pre class="alt"><span class="lnum">   1:  </span><span class="rem">//This is a class that handles </span></pre>
+<pre><span class="lnum">   2:  </span><span class="rem">//calculating tax for sales in </span></pre>
+<pre class="alt"><span class="lnum">   3:  </span><span class="rem">//several states</span></pre>
+<pre><span class="lnum">   4:  </span><span class="kwrd">public</span> <span class="kwrd">class</span> class1</pre>
+<pre class="alt"><span class="lnum">   5:  </span>{</pre>
+<pre><span class="lnum">   6:  </span>        <span class="rem">//Calc sales total for a couple states</span></pre>
+<pre class="alt"><span class="lnum">   7:  </span>        <span class="rem">//AR - tax 9.5%</span></pre>
+<pre><span class="lnum">   8:  </span>        <span class="rem">//NM - tax 5.5%</span></pre>
+<pre class="alt"><span class="lnum">   9:  </span>        <span class="rem">//TX - tax 8.5%    </span></pre>
+<pre><span class="lnum">  10:  </span>        <span class="kwrd">public</span> <span class="kwrd">decimal</span> calc(<span class="kwrd">decimal</span> a, <span class="kwrd">string</span> n)</pre>
+<pre class="alt"><span class="lnum">  11:  </span>       {</pre>
+<pre><span class="lnum">  12:  </span>             <span class="rem">//The quick red fox jumped over the lazy brown dog.</span></pre>
+<pre class="alt"><span class="lnum">  13:  </span>             <span class="rem">//The quick red fox jumped over the lazy brown dog.</span></pre>
+<pre><span class="lnum">  14:  </span>             <span class="rem">//The quick red fox jumped over the lazy brown dog.</span></pre>
+<pre class="alt"><span class="lnum">  15:  </span>             <span class="rem">//The quick red fox jumped over the lazy brown dog.</span></pre>
+<pre><span class="lnum">  16:  </span>             <span class="kwrd">switch</span>(n)</pre>
+<pre class="alt"><span class="lnum">  17:  </span>             {</pre>
+<pre><span class="lnum">  18:  </span>                   <span class="kwrd">case</span> <span class="str">"AR"</span>:</pre>
+<pre class="alt"><span class="lnum">  19:  </span>                          {</pre>
+<pre><span class="lnum">  20:  </span>                                <span class="kwrd">return</span>  a * 1.095;</pre>
+<pre class="alt"><span class="lnum">  21:  </span>                           }</pre>
+<pre><span class="lnum">  22:  </span>                           <span class="kwrd">break</span>;</pre>
+<pre class="alt"><span class="lnum">  23:  </span>                    <span class="kwrd">case</span> <span class="str">"TX"</span>:</pre>
+<pre><span class="lnum">  24:  </span>                            {</pre>
+<pre class="alt"><span class="lnum">  25:  </span>                                <span class="kwrd">return</span> a * 1.0875;</pre>
+<pre><span class="lnum">  26:  </span>                            }</pre>
+<pre class="alt"><span class="lnum">  27:  </span>                            <span class="kwrd">break</span>;</pre>
+<pre><span class="lnum">  28:  </span>                    <span class="kwrd">case</span> <span class="str">"NM"</span>:</pre>
+<pre class="alt"><span class="lnum">  29:  </span>                           {</pre>
+<pre><span class="lnum">  30:  </span>                                <span class="kwrd">return</span> a * 1.055;</pre>
+<pre class="alt"><span class="lnum">  31:  </span>                            }</pre>
+<pre><span class="lnum">  32:  </span>                            <span class="kwrd">break</span>;</pre>
+<pre class="alt"><span class="lnum">  33:  </span>              }    </pre>
+<pre><span class="lnum">  34:  </span>       }</pre>
+<pre class="alt"><span class="lnum">  35:  </span>}</pre>
+</div>
+<p><!-- .csharpcode, .csharpcode pre { 	font-size: small; 	color: black; 	font-family: consolas, "Courier New", courier, monospace; 	background-color: #ffffff; 	/*white-space: pre;*/ } .csharpcode pre { margin: 0em; } .csharpcode .rem { color: #008000; } .csharpcode .kwrd { color: #0000ff; } .csharpcode .str { color: #006080; } .csharpcode .op { color: #0000c0; } .csharpcode .preproc { color: #cc6633; } .csharpcode .asp { background-color: #ffff00; } .csharpcode .html { color: #800000; } .csharpcode .attr { color: #ff0000; } .csharpcode .alt  { 	background-color: #f4f4f4; 	width: 100%; 	margin: 0em; } .csharpcode .lnum { color: #606060; } --></p>
+<p>versus my way</p>
+<div class="csharpcode">
+<pre class="alt"><span class="lnum">   1:  </span><span class="kwrd">public</span> <span class="kwrd">class</span> MultiStateSalesTaxCalculator</pre>
+<pre><span class="lnum">   2:  </span>{</pre>
+<pre class="alt"><span class="lnum">   3:  </span>        <span class="kwrd">public</span> <span class="kwrd">decimal</span> ARKANSAS_STATE_SALES_TAX = 0.095;</pre>
+<pre><span class="lnum">   4:  </span>        <span class="kwrd">public</span> <span class="kwrd">decimal</span> TEXAS_STATE_SALES_TAX = 0.095;</pre>
+<pre class="alt"><span class="lnum">   5:  </span>        <span class="kwrd">public</span> <span class="kwrd">decimal</span> NEW_MEXICO_STATE_SALES_TAX = 0.095;</pre>
+<pre><span class="lnum">   6:  </span>&nbsp;</pre>
+<pre class="alt"><span class="lnum">   7:  </span>        <span class="kwrd">public</span> <span class="kwrd">decimal</span> CalculateSalesTotalWithTaxByState(<span class="kwrd">decimal</span> SubTotal, <span class="kwrd">string</span> stateAbreveation)</pre>
+<pre><span class="lnum">   8:  </span>       {</pre>
+<pre class="alt"><span class="lnum">   9:  </span>             <span class="kwrd">switch</span>(stateAbreveation)</pre>
+<pre><span class="lnum">  10:  </span>             {</pre>
+<pre class="alt"><span class="lnum">  11:  </span>                   <span class="kwrd">case</span> <span class="str">"AR"</span>:</pre>
+<pre><span class="lnum">  12:  </span>                          {</pre>
+<pre class="alt"><span class="lnum">  13:  </span>                                <span class="kwrd">return</span>  SubTotal + ( SubTotal * ARKANSAS_STATE_SALES_TAX)  ;</pre>
+<pre><span class="lnum">  14:  </span>                           }</pre>
+<pre class="alt"><span class="lnum">  15:  </span>                           <span class="kwrd">break</span>;</pre>
+<pre><span class="lnum">  16:  </span>                    <span class="kwrd">case</span> <span class="str">"TX"</span>:</pre>
+<pre class="alt"><span class="lnum">  17:  </span>                           {</pre>
+<pre><span class="lnum">  18:  </span>                                <span class="kwrd">return</span> SubTotal + ( SubTotal * TEXAS_STATE_SALES_TAX);</pre>
+<pre class="alt"><span class="lnum">  19:  </span>                            }</pre>
+<pre><span class="lnum">  20:  </span>                            <span class="kwrd">break</span>;</pre>
+<pre class="alt"><span class="lnum">  21:  </span>                    <span class="kwrd">case</span> <span class="str">"NM"</span>:</pre>
+<pre><span class="lnum">  22:  </span>                           {</pre>
+<pre class="alt"><span class="lnum">  23:  </span>                                <span class="kwrd">return</span> SubTotal + ( SubTotal * NEW_MEXICO_STATE_SALES_TAX);</pre>
+<pre><span class="lnum">  24:  </span>                            }</pre>
+<pre class="alt"><span class="lnum">  25:  </span>                            <span class="kwrd">break</span>;</pre>
+<pre><span class="lnum">  26:  </span>              }    </pre>
+<pre class="alt"><span class="lnum">  27:  </span>       }</pre>
+<pre><span class="lnum">  28:  </span>}</pre>
+</div>
+<p><!-- .csharpcode, .csharpcode pre { 	font-size: small; 	color: black; 	font-family: consolas, "Courier New", courier, monospace; 	background-color: #ffffff; 	/*white-space: pre;*/ } .csharpcode pre { margin: 0em; } .csharpcode .rem { color: #008000; } .csharpcode .kwrd { color: #0000ff; } .csharpcode .str { color: #006080; } .csharpcode .op { color: #0000c0; } .csharpcode .preproc { color: #cc6633; } .csharpcode .asp { background-color: #ffff00; } .csharpcode .html { color: #800000; } .csharpcode .attr { color: #ff0000; } .csharpcode .alt  { 	background-color: #f4f4f4; 	width: 100%; 	margin: 0em; } .csharpcode .lnum { color: #606060; } --></p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Devlin Liles</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-09-15T00:00:00-05:00" pubdate data-updated="true">Sep 15<span>th</span>, 2009</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://devlinliles.com/blog/Comments-versus-Well-written-code/" data-via="devlinliles" data-counturl="http://devlinliles.com/blog/Comments-versus-Well-written-code/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/C-Functions-that-might-help-pt-1/" title="Previous Post: C# Functions that might help pt. 1">&laquo; C# Functions that might help pt. 1</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/My-Story/" title="Next Post: My Story">My Story &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/How-to-constrain-mocks-for-use-with-Complex-Types/">How to constrain mocks for use with Complex Types</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/AgileDotNet-is-Coming-Are-you-registered/">AgileDotNet is Coming!!! Are you registered?</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Concurrency-and-Locking-in-Entity-Framework/">Concurrency and Locking in Entity Framework</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Tulsa-Tech-Fest-2011/">Tulsa Tech Fest 2011</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Houston-DNUG-Presentation/">Houston DNUG Presentation</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/devlinliles">@devlinliles</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'devlinliles',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("devlinliles", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/devlinliles" class="twitter-follow-button" data-show-count="false">Follow @devlinliles</a>
+  
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Devlin Liles -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

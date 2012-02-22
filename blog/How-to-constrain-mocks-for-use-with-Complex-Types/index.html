@@ -1,0 +1,277 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>How to constrain mocks for use with Complex Types - The Devlineator</title>
+  <meta name="author" content="Devlin Liles">
+
+  
+  <meta name="description" content="Here are some tests to illustrate how to leverage RhinoMocks constraints. Notice that it is easier to get a passing test on failing code with a stub &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://devlinliles.com/blog/How-to-constrain-mocks-for-use-with-Complex-Types">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="The Devlineator" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">The Devlineator</a></h1>
+  
+    <h2>Random thoughts on .NET Development</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:devlinliles.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">How to Constrain Mocks for Use With Complex Types</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-01-19T00:00:00-06:00" pubdate data-updated="true">Jan 19<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Here are some tests to illustrate how to leverage RhinoMocks constraints. Notice that it is easier to get a passing test on failing code with a stub. The Strict mock will enforce the expectations at the time of the call, where the stub will only throw an exception on an AssertWasCalled. Due to this I would recommend that you explicitly do your setup and use strict mocks, or make sure to have the discipline to test those assertions. </p>  <p>&#160;</p>  <p>With the method Matches() ,you can use any predicate or method call that returns a boolean. You cannot however use a lambda with a method body aka () =&gt;{}. This will not compile.</p>  <p>[TestClass]</p>  <p>public class Tests</p>  <p>{</p>  <p>[TestMethod]   <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; public void Should_Allow_Constraint()    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; {    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; //Arrange    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; var mock = MockRepository.GenerateStrictMock&lt;ITestExerciser&gt;();    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; mock.Expect(x =&gt; x.DoSomething(Arg&lt;List&lt;ITest&gt;&gt;.Matches(c =&gt; c.First() is Test))).Return(&quot;TestPass&quot;);    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; var tester = new Tester(mock);    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; //Act    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; var result = tester.DoIt();</p>  <p>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; //Assert   <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; mock.VerifyAllExpectations();    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; Assert.AreEqual(&quot;TestPass&quot;,result);    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; }</p>  <p>&#160;&#160;&#160;&#160;&#160;&#160;&#160; [TestMethod]   <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; public void Should_Enforce_Constraint_On_Strict_Mock()    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; {    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; //Arrange    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; var mock = MockRepository.GenerateStrictMock&lt;ITestExerciser&gt;();    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; mock.Expect(x =&gt; x.DoSomething(Arg&lt;List&lt;ITest&gt;&gt;.Matches(c =&gt; c.Any(t=&gt; t is Test)))).Return(&quot;TestPass&quot;);    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; var tester = new Tester(mock);    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; //Act    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; var result = tester.DoItWrong();</p>  <p>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; //Assert   <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; mock.VerifyAllExpectations();    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; Assert.AreEqual(&quot;TestPass&quot;, result);    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; }</p>  <p>&#160;&#160;&#160;&#160;&#160;&#160;&#160; [TestMethod]   <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; public void Should_Allow_Manual_Enforce_Constraint_On_Stub()    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; {    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; //Arrange    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; var mock = MockRepository.GenerateStub&lt;ITestExerciser&gt;();    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; mock.Expect(x =&gt; x.DoSomething(Arg&lt;List&lt;ITest&gt;&gt;.Matches(c =&gt; TestSomething(c)))).Return(&quot;TestPass&quot;);    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; var tester = new Tester(mock);    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; //Act    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; var result = tester.DoItWrong();</p>  <p>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; //Assert   <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; mock.AssertWasCalled(x =&gt; x.DoSomething(Arg&lt;List&lt;ITest&gt;&gt;.Matches(c =&gt; c.Any(t =&gt; t is Test))));    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; Assert.AreEqual(&quot;TestPass&quot;, result);    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; }</p>  <p>&#160;&#160;&#160;&#160;&#160;&#160;&#160; private bool TestSomething(List&lt;ITest&gt; tests)   <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; {    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; return true;    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; }    <br />&#160;&#160;&#160; }</p>  <p>&#160;&#160;&#160; public class Tester   <br />&#160;&#160;&#160; {    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; private ITestExerciser _testExerciser;</p>  <p>&#160;&#160;&#160;&#160;&#160;&#160;&#160; public Tester(ITestExerciser testExerciser)   <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; {    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; _testExerciser = testExerciser;    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; }</p>  <p>&#160;&#160;&#160;&#160;&#160;&#160;&#160; public object DoIt()   <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; {    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; return _testExerciser.DoSomething(new List&lt;ITest&gt;() {new Test()});    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; }</p>  <p>&#160;&#160;&#160;&#160;&#160;&#160;&#160; public object DoItWrong()   <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; {    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; return _testExerciser.DoSomething(new List&lt;ITest&gt;() { new TestBase() });    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; }    <br />&#160;&#160;&#160; }</p>  <p>&#160;&#160;&#160; public class TestExerciser : ITestExerciser   <br />&#160;&#160;&#160; {    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; public object DoSomething(List&lt;ITest&gt; args)    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; {    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; return null;    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; }    <br />&#160;&#160;&#160; }</p>  <p>&#160;&#160;&#160; public interface ITestExerciser   <br />&#160;&#160;&#160; {    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; object DoSomething(List&lt;ITest&gt; args);    <br />&#160;&#160;&#160; }</p>  <p>&#160;&#160;&#160; public class Test : TestBase   <br />&#160;&#160;&#160; {    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; <br />&#160;&#160;&#160; }</p>  <p>&#160;&#160;&#160; public class TestBase : ITest   <br />&#160;&#160;&#160; {    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; public int Id { get; set; }    <br />&#160;&#160;&#160; }</p>  <p>&#160;&#160;&#160; public interface ITest   <br />&#160;&#160;&#160; {    <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160; int Id { get; set; }    <br />&#160;&#160;&#160; }</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Devlin Liles</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-01-19T00:00:00-06:00" pubdate data-updated="true">Jan 19<span>th</span>, 2012</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://devlinliles.com/blog/How-to-constrain-mocks-for-use-with-Complex-Types/" data-via="devlinliles" data-counturl="http://devlinliles.com/blog/How-to-constrain-mocks-for-use-with-Complex-Types/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/AgileDotNet-is-Coming-Are-you-registered/" title="Previous Post: AgileDotNet is Coming!!! Are you registered?">&laquo; AgileDotNet is Coming!!! Are you registered?</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/How-to-constrain-mocks-for-use-with-Complex-Types/">How to constrain mocks for use with Complex Types</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/AgileDotNet-is-Coming-Are-you-registered/">AgileDotNet is Coming!!! Are you registered?</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Concurrency-and-Locking-in-Entity-Framework/">Concurrency and Locking in Entity Framework</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Tulsa-Tech-Fest-2011/">Tulsa Tech Fest 2011</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Houston-DNUG-Presentation/">Houston DNUG Presentation</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/devlinliles">@devlinliles</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'devlinliles',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("devlinliles", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/devlinliles" class="twitter-follow-button" data-show-count="false">Follow @devlinliles</a>
+  
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Devlin Liles -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
