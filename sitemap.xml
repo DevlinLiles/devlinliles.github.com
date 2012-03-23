@@ -1,243 +1,261 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
     <url>
-        <loc>http://devlinliles.com/blog/About-Me/</loc>
+        <loc>http://DevlinLiles.github.com/blog/About-Me/</loc>
         <lastmod>2012-02-21T20:16:02-06:00</lastmod>
     </url>
     <url>
         <loc>
-            http://devlinliles.com/blog/Batch-File-and-Command-File-running-in-Visual-Studio/
+            http://DevlinLiles.github.com/blog/Batch-File-and-Command-File-running-in-Visual-Studio/
         </loc>
         <lastmod>2012-02-21T20:16:02-06:00</lastmod>
     </url>
     <url>
         <loc>
-            http://devlinliles.com/blog/SQL-Server-Reporting-Services-Ad-Hoc-integrated-with-ASPNET/
+            http://DevlinLiles.github.com/blog/SQL-Server-Reporting-Services-Ad-Hoc-integrated-with-ASPNET/
         </loc>
-        <lastmod>2012-02-21T20:16:02-06:00</lastmod>
-    </url>
-    <url>
-        <loc>http://devlinliles.com/blog/Test-Driven-Development-Not-for-the-faint-of-heart/</loc>
-        <lastmod>2012-02-21T20:16:02-06:00</lastmod>
-    </url>
-    <url>
-        <loc>http://devlinliles.com/blog/Tyson-Development-Conference-09-Setup/</loc>
-        <lastmod>2012-02-21T20:16:02-06:00</lastmod>
-    </url>
-    <url>
-        <loc>http://devlinliles.com/blog/Generics-What-you-should-know/</loc>
-        <lastmod>2012-02-21T20:16:02-06:00</lastmod>
-    </url>
-    <url>
-        <loc>http://devlinliles.com/blog/C-Functions-that-might-help-pt-1/</loc>
-        <lastmod>2012-02-21T20:16:02-06:00</lastmod>
-    </url>
-    <url>
-        <loc>http://devlinliles.com/blog/Comments-versus-Well-written-code/</loc>
-        <lastmod>2012-02-21T20:16:02-06:00</lastmod>
-    </url>
-    <url>
-        <loc>http://devlinliles.com/blog/My-Story/</loc>
-        <lastmod>2012-02-21T20:16:02-06:00</lastmod>
-    </url>
-    <url>
-        <loc>http://devlinliles.com/blog/LINQ-Lambda-and-the-Learning-Curve/</loc>
-        <lastmod>2012-02-21T20:16:02-06:00</lastmod>
-    </url>
-    <url>
-        <loc>http://devlinliles.com/blog/WCF-Serialization-of-Cyclic-References/</loc>
-        <lastmod>2012-02-21T20:16:02-06:00</lastmod>
-    </url>
-    <url>
-        <loc>http://devlinliles.com/blog/Resharper-Optimize-your-code-analysis/</loc>
-        <lastmod>2012-02-21T20:16:02-06:00</lastmod>
-    </url>
-    <url>
-        <loc>http://devlinliles.com/blog/Resharper-and-Using-Directive-clean-up/</loc>
-        <lastmod>2012-02-21T20:16:02-06:00</lastmod>
-    </url>
-    <url>
-        <loc>http://devlinliles.com/blog/Visual-Studio-2010-Install-fest/</loc>
-        <lastmod>2012-02-21T20:16:02-06:00</lastmod>
-    </url>
-    <url>
-        <loc>http://devlinliles.com/blog/Converting-NUnit-Tests-to-MSTest-for-CI-builds/</loc>
         <lastmod>2012-02-21T20:16:02-06:00</lastmod>
     </url>
     <url>
         <loc>
-            http://devlinliles.com/blog/Turning-Off-Code-Block-Highlighting-in-Visual-Studio-2010/
+            http://DevlinLiles.github.com/blog/Test-Driven-Development-Not-for-the-faint-of-heart/
         </loc>
         <lastmod>2012-02-21T20:16:02-06:00</lastmod>
     </url>
     <url>
-        <loc>http://devlinliles.com/blog/jQuery-Cookbook/</loc>
+        <loc>http://DevlinLiles.github.com/blog/Tyson-Development-Conference-09-Setup/</loc>
         <lastmod>2012-02-21T20:16:02-06:00</lastmod>
     </url>
     <url>
-        <loc>http://devlinliles.com/blog/Geek-Handbook/</loc>
+        <loc>http://DevlinLiles.github.com/blog/Generics-What-you-should-know/</loc>
         <lastmod>2012-02-21T20:16:02-06:00</lastmod>
     </url>
     <url>
-        <loc>http://devlinliles.com/blog/Repository-and-Interface-Re-use-between-Databases/</loc>
+        <loc>http://DevlinLiles.github.com/blog/C-Functions-that-might-help-pt-1/</loc>
         <lastmod>2012-02-21T20:16:02-06:00</lastmod>
     </url>
     <url>
-        <loc>http://devlinliles.com/blog/Separating-POCO-and-Context-in-EF-40/</loc>
+        <loc>http://DevlinLiles.github.com/blog/Comments-versus-Well-written-code/</loc>
         <lastmod>2012-02-21T20:16:02-06:00</lastmod>
     </url>
     <url>
-        <loc>http://devlinliles.com/blog/Lessons-Learned-A-Developer-Retrospective/</loc>
+        <loc>http://DevlinLiles.github.com/blog/My-Story/</loc>
         <lastmod>2012-02-21T20:16:02-06:00</lastmod>
     </url>
     <url>
-        <loc>http://devlinliles.com/blog/Using-VSS-and-Visual-Studio-2005-on-Windows-7/</loc>
+        <loc>http://DevlinLiles.github.com/blog/LINQ-Lambda-and-the-Learning-Curve/</loc>
+        <lastmod>2012-02-21T20:16:02-06:00</lastmod>
+    </url>
+    <url>
+        <loc>http://DevlinLiles.github.com/blog/WCF-Serialization-of-Cyclic-References/</loc>
+        <lastmod>2012-02-21T20:16:02-06:00</lastmod>
+    </url>
+    <url>
+        <loc>http://DevlinLiles.github.com/blog/Resharper-Optimize-your-code-analysis/</loc>
+        <lastmod>2012-02-21T20:16:02-06:00</lastmod>
+    </url>
+    <url>
+        <loc>http://DevlinLiles.github.com/blog/Resharper-and-Using-Directive-clean-up/</loc>
+        <lastmod>2012-02-21T20:16:02-06:00</lastmod>
+    </url>
+    <url>
+        <loc>http://DevlinLiles.github.com/blog/Visual-Studio-2010-Install-fest/</loc>
+        <lastmod>2012-02-21T20:16:02-06:00</lastmod>
+    </url>
+    <url>
+        <loc>
+            http://DevlinLiles.github.com/blog/Converting-NUnit-Tests-to-MSTest-for-CI-builds/
+        </loc>
+        <lastmod>2012-02-21T20:16:02-06:00</lastmod>
+    </url>
+    <url>
+        <loc>
+            http://DevlinLiles.github.com/blog/Turning-Off-Code-Block-Highlighting-in-Visual-Studio-2010/
+        </loc>
+        <lastmod>2012-02-21T20:16:02-06:00</lastmod>
+    </url>
+    <url>
+        <loc>http://DevlinLiles.github.com/blog/jQuery-Cookbook/</loc>
+        <lastmod>2012-02-21T20:16:02-06:00</lastmod>
+    </url>
+    <url>
+        <loc>http://DevlinLiles.github.com/blog/Geek-Handbook/</loc>
+        <lastmod>2012-02-21T20:16:02-06:00</lastmod>
+    </url>
+    <url>
+        <loc>
+            http://DevlinLiles.github.com/blog/Repository-and-Interface-Re-use-between-Databases/
+        </loc>
+        <lastmod>2012-02-21T20:16:02-06:00</lastmod>
+    </url>
+    <url>
+        <loc>http://DevlinLiles.github.com/blog/Separating-POCO-and-Context-in-EF-40/</loc>
+        <lastmod>2012-02-21T20:16:02-06:00</lastmod>
+    </url>
+    <url>
+        <loc>http://DevlinLiles.github.com/blog/Lessons-Learned-A-Developer-Retrospective/</loc>
+        <lastmod>2012-02-21T20:16:02-06:00</lastmod>
+    </url>
+    <url>
+        <loc>
+            http://DevlinLiles.github.com/blog/Using-VSS-and-Visual-Studio-2005-on-Windows-7/
+        </loc>
         <lastmod>2012-02-21T20:10:59-06:00</lastmod>
     </url>
     <url>
         <loc>
-            http://devlinliles.com/blog/Using-VSS-and-Visual-Studio-2005-on-Windows-7-%28x64%29/
+            http://DevlinLiles.github.com/blog/Using-VSS-and-Visual-Studio-2005-on-Windows-7-%28x64%29/
         </loc>
         <lastmod>2012-02-21T20:16:02-06:00</lastmod>
     </url>
     <url>
-        <loc>http://devlinliles.com/blog/Callback-pattern-to-the-rescue/</loc>
+        <loc>http://DevlinLiles.github.com/blog/Callback-pattern-to-the-rescue/</loc>
         <lastmod>2012-02-21T20:16:02-06:00</lastmod>
     </url>
     <url>
-        <loc>http://devlinliles.com/blog/Absolute-Must-Read/</loc>
+        <loc>http://DevlinLiles.github.com/blog/Absolute-Must-Read/</loc>
         <lastmod>2012-02-21T20:16:02-06:00</lastmod>
     </url>
     <url>
-        <loc>http://devlinliles.com/blog/Time-and-Resources/</loc>
+        <loc>http://DevlinLiles.github.com/blog/Time-and-Resources/</loc>
         <lastmod>2012-02-21T20:16:02-06:00</lastmod>
     </url>
     <url>
         <loc>
-            http://devlinliles.com/blog/File-new-with-Entity-Framework-40-and-Poco-object-separation/
+            http://DevlinLiles.github.com/blog/File-new-with-Entity-Framework-40-and-Poco-object-separation/
         </loc>
         <lastmod>2012-02-21T20:16:02-06:00</lastmod>
     </url>
     <url>
-        <loc>http://devlinliles.com/blog/Callback-to-the-rescue-%28part-2%29/</loc>
+        <loc>http://DevlinLiles.github.com/blog/Callback-to-the-rescue-%28part-2%29/</loc>
         <lastmod>2012-02-21T20:16:02-06:00</lastmod>
     </url>
     <url>
-        <loc>http://devlinliles.com/blog/Strategies-for-becoming-a-better-programmer/</loc>
-        <lastmod>2012-02-21T20:16:02-06:00</lastmod>
-    </url>
-    <url>
-        <loc>http://devlinliles.com/blog/Rewriting-a-talk-the-day-before-hand-AWESOME/</loc>
-        <lastmod>2012-02-21T20:16:02-06:00</lastmod>
-    </url>
-    <url>
-        <loc>http://devlinliles.com/blog/Houston-DNUG-Presentation/</loc>
+        <loc>http://DevlinLiles.github.com/blog/Strategies-for-becoming-a-better-programmer/</loc>
         <lastmod>2012-02-21T20:16:02-06:00</lastmod>
     </url>
     <url>
         <loc>
-            http://devlinliles.com/blog/Visual-Studio-and-Windows-authentication-from-different-domains/
+            http://DevlinLiles.github.com/blog/Rewriting-a-talk-the-day-before-hand-AWESOME/
         </loc>
         <lastmod>2012-02-21T20:16:02-06:00</lastmod>
     </url>
     <url>
+        <loc>http://DevlinLiles.github.com/blog/Houston-DNUG-Presentation/</loc>
+        <lastmod>2012-02-21T20:16:02-06:00</lastmod>
+    </url>
+    <url>
         <loc>
-            http://devlinliles.com/blog/Object-Repository-Extension-to-the-Standard-Repository-Pattern/
+            http://DevlinLiles.github.com/blog/Visual-Studio-and-Windows-authentication-from-different-domains/
         </loc>
         <lastmod>2012-02-21T20:16:02-06:00</lastmod>
     </url>
     <url>
         <loc>
-            http://devlinliles.com/blog/Unit-Testing-Entity-Framework-Repository-without-a-DB/
+            http://DevlinLiles.github.com/blog/Object-Repository-Extension-to-the-Standard-Repository-Pattern/
         </loc>
         <lastmod>2012-02-21T20:16:02-06:00</lastmod>
     </url>
     <url>
         <loc>
-            http://devlinliles.com/blog/Legacy-Support-with-Entity-Frameworke28093Stored-Procs/
-        </loc>
-        <lastmod>2012-02-21T20:16:02-06:00</lastmod>
-    </url>
-    <url>
-        <loc>http://devlinliles.com/blog/Entity-Framework-Connection-Strings/</loc>
-        <lastmod>2012-02-21T20:16:02-06:00</lastmod>
-    </url>
-    <url>
-        <loc>
-            http://devlinliles.com/blog/Entity-Framework-Cascading-deletes-avoid-the-gotchas/
-        </loc>
-        <lastmod>2012-02-21T20:16:02-06:00</lastmod>
-    </url>
-    <url>
-        <loc>http://devlinliles.com/blog/How-to-manage-Queries-with-Entity-Framework/</loc>
-        <lastmod>2012-02-21T20:16:02-06:00</lastmod>
-    </url>
-    <url>
-        <loc>http://devlinliles.com/blog/Composing-Complex-Queries-with-LINQ-to-Entities/</loc>
-        <lastmod>2012-02-21T20:16:02-06:00</lastmod>
-    </url>
-    <url>
-        <loc>
-            http://devlinliles.com/blog/Entity-Frameworke28093Metadata-Connection-Strings-for-EDMX-files-in-another-assembly/
+            http://DevlinLiles.github.com/blog/Unit-Testing-Entity-Framework-Repository-without-a-DB/
         </loc>
         <lastmod>2012-02-21T20:16:02-06:00</lastmod>
     </url>
     <url>
         <loc>
-            http://devlinliles.com/blog/Dallas-DNUG-Presentatione28093File-New-with-EF-and-POCO-separation/
+            http://DevlinLiles.github.com/blog/Legacy-Support-with-Entity-Frameworke28093Stored-Procs/
         </loc>
         <lastmod>2012-02-21T20:16:02-06:00</lastmod>
     </url>
     <url>
-        <loc>http://devlinliles.com/blog/Dynamic-Sort-With-LINQ/</loc>
-        <lastmod>2012-02-21T20:16:02-06:00</lastmod>
-    </url>
-    <url>
-        <loc>http://devlinliles.com/blog/Dallas-Tech-Fest-2011e28093Call-for-Speakers-Open/</loc>
+        <loc>http://DevlinLiles.github.com/blog/Entity-Framework-Connection-Strings/</loc>
         <lastmod>2012-02-21T20:16:02-06:00</lastmod>
     </url>
     <url>
         <loc>
-            http://devlinliles.com/blog/Using-Fluent-Configuration-with-Entity-Framework-41/
+            http://DevlinLiles.github.com/blog/Entity-Framework-Cascading-deletes-avoid-the-gotchas/
+        </loc>
+        <lastmod>2012-02-21T20:16:02-06:00</lastmod>
+    </url>
+    <url>
+        <loc>http://DevlinLiles.github.com/blog/How-to-manage-Queries-with-Entity-Framework/</loc>
+        <lastmod>2012-02-21T20:16:02-06:00</lastmod>
+    </url>
+    <url>
+        <loc>
+            http://DevlinLiles.github.com/blog/Composing-Complex-Queries-with-LINQ-to-Entities/
         </loc>
         <lastmod>2012-02-21T20:16:02-06:00</lastmod>
     </url>
     <url>
         <loc>
-            http://devlinliles.com/blog/Reverse-Engineer-Code-Firste28093Jump-start-for-existing-Databases/
+            http://DevlinLiles.github.com/blog/Entity-Frameworke28093Metadata-Connection-Strings-for-EDMX-files-in-another-assembly/
         </loc>
         <lastmod>2012-02-21T20:16:02-06:00</lastmod>
     </url>
     <url>
-        <loc>http://devlinliles.com/blog/Dallas-TechFest-2011e28093Awesome-Conference/</loc>
+        <loc>
+            http://DevlinLiles.github.com/blog/Dallas-DNUG-Presentatione28093File-New-with-EF-and-POCO-separation/
+        </loc>
         <lastmod>2012-02-21T20:16:02-06:00</lastmod>
     </url>
     <url>
-        <loc>http://devlinliles.com/blog/Houston-DNUG-Presentation/</loc>
+        <loc>http://DevlinLiles.github.com/blog/Dynamic-Sort-With-LINQ/</loc>
         <lastmod>2012-02-21T20:16:02-06:00</lastmod>
     </url>
     <url>
-        <loc>http://devlinliles.com/blog/Tulsa-Tech-Fest-2011/</loc>
+        <loc>
+            http://DevlinLiles.github.com/blog/Dallas-Tech-Fest-2011e28093Call-for-Speakers-Open/
+        </loc>
         <lastmod>2012-02-21T20:16:02-06:00</lastmod>
     </url>
     <url>
-        <loc>http://devlinliles.com/blog/Concurrency-and-Locking-in-Entity-Framework/</loc>
+        <loc>
+            http://DevlinLiles.github.com/blog/Using-Fluent-Configuration-with-Entity-Framework-41/
+        </loc>
         <lastmod>2012-02-21T20:16:02-06:00</lastmod>
     </url>
     <url>
-        <loc>http://devlinliles.com/blog/AgileDotNet-is-Coming-Are-you-registered/</loc>
+        <loc>
+            http://DevlinLiles.github.com/blog/Reverse-Engineer-Code-Firste28093Jump-start-for-existing-Databases/
+        </loc>
         <lastmod>2012-02-21T20:16:02-06:00</lastmod>
     </url>
     <url>
-        <loc>http://devlinliles.com/blog/How-to-constrain-mocks-for-use-with-Complex-Types/</loc>
+        <loc>
+            http://DevlinLiles.github.com/blog/Dallas-TechFest-2011e28093Awesome-Conference/
+        </loc>
         <lastmod>2012-02-21T20:16:02-06:00</lastmod>
     </url>
     <url>
-        <loc>http://devlinliles.com/blog/archives/</loc>
+        <loc>http://DevlinLiles.github.com/blog/Houston-DNUG-Presentation/</loc>
         <lastmod>2012-02-21T20:16:02-06:00</lastmod>
     </url>
     <url>
-        <loc>http://devlinliles.com/</loc>
+        <loc>http://DevlinLiles.github.com/blog/Tulsa-Tech-Fest-2011/</loc>
+        <lastmod>2012-02-21T20:16:02-06:00</lastmod>
+    </url>
+    <url>
+        <loc>http://DevlinLiles.github.com/blog/Concurrency-and-Locking-in-Entity-Framework/</loc>
+        <lastmod>2012-02-21T20:16:02-06:00</lastmod>
+    </url>
+    <url>
+        <loc>http://DevlinLiles.github.com/blog/AgileDotNet-is-Coming-Are-you-registered/</loc>
+        <lastmod>2012-02-21T20:16:02-06:00</lastmod>
+    </url>
+    <url>
+        <loc>
+            http://DevlinLiles.github.com/blog/How-to-constrain-mocks-for-use-with-Complex-Types/
+        </loc>
+        <lastmod>2012-02-21T20:16:02-06:00</lastmod>
+    </url>
+    <url>
+        <loc>http://DevlinLiles.github.com/blog/archives/</loc>
+        <lastmod>2012-02-21T20:16:02-06:00</lastmod>
+    </url>
+    <url>
+        <loc>http://DevlinLiles.github.com/</loc>
         <lastmod>2012-02-21T20:16:02-06:00</lastmod>
     </url>
 </urlset>
